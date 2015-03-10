@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Diff
+Bundle-SymbolicName: org.eclipse.emf.compare.richtext.diff
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Modeling Project
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.google.guava;bundle-version="11.0.2",
+ org.outerj.daisydiff.new;bundle-version="1.0.0",
+ org.eclipse.compare.core
