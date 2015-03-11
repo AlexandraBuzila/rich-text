@@ -12,6 +12,7 @@ import org.junit.Test;
 
 /**
  * @author Alexandra Buzila
+ * @author Florian Zoubek
  *
  */
 public class ThreeWayRichTextDiffTest {
@@ -61,6 +62,30 @@ public class ThreeWayRichTextDiffTest {
 		String merged = diff.getMerged();
 		Assert.assertTrue(result.equals(merged));
 	}
+	
+	/* Changes in different paragraphs with one addition (left) and deletion (right)  */
+	
+	@Test
+	public void testConflict_changeInDifferentParagraphs_additionDeletion() throws IOException {
+		String origin = inputData.getChangeDifferentParagraphAdditionDeletionOrigin();
+		String right = inputData.getChangeDifferentParagraphAdditionDeletionRight();
+		String left = inputData.getChangeDifferentParagraphAdditionDeletionLeft();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertFalse(diff.isConflicting());
+	}
+
+	@Test
+	public void testMerge_changeInDifferentParagraphs_additionDeletion() throws IOException {
+		String origin = inputData.getChangeDifferentParagraphAdditionDeletionOrigin();
+		String right = inputData.getChangeDifferentParagraphAdditionDeletionRight();
+		String left = inputData.getChangeDifferentParagraphAdditionDeletionLeft();
+		String result = inputData.getChangeDifferentParagraphAdditionDeletionResult();
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
+	}
 
 	@Test
 	public void testConflict_insertParagraphDifferentLocation() throws IOException {
@@ -97,6 +122,30 @@ public class ThreeWayRichTextDiffTest {
 		String origin = inputData.getInsertParagraphSameLocationOrigin();
 		String left = inputData.getInsertParagraphSameLocationLeft();
 		String right = inputData.getInsertParagraphSameLocationRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/* Left: paragraph deleted - Right: text additions in deleted paragraph */
+	
+	@Test
+	public void testConflict_changeInDeletedParagraph_additions() throws IOException {
+		String origin = inputData.getAdditionsInDeletedParagraphOrigin();
+		String left = inputData.getAdditionsInDeletedParagraphLeft();
+		String right = inputData.getAdditionsInDeletedParagraphRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/* Left: paragraph deleted - Right: text deletions in deleted paragraph */
+	
+	@Test
+	public void testConflict_changeInDeletedParagraph_deletions() throws IOException {
+		String origin = inputData.getDeletionsInDeletedParagraphOrigin();
+		String left = inputData.getDeletionsInDeletedParagraphLeft();
+		String right = inputData.getDeletionsInDeletedParagraphRight();
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());

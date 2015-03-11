@@ -71,6 +71,83 @@ public class RichTextMergeInputData {
 	public String getChangeSameParagraphRight() throws IOException {
 		return readFile("data/paragraph/changesameparagraph/right.html");
 	}
+	
+	/* Left: paragraph deleted - Right: text additions in deleted paragraph */
+	
+	/**
+	 * Origin version, contains:
+	 * 
+	 * <ul><li>2 paragraphs with text</li></ul>
+	 * 
+	 * @see #getAdditionsInDeletedParagraphLeft()
+	 * @see #getAdditionsInDeletedParagraphRight()
+	 */
+	public String getAdditionsInDeletedParagraphOrigin() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/addition/origin.html");
+	}
+	
+	/**
+	 * Left version, changes:
+	 * 
+	 * <ul><li>Second paragraph deleted</li></ul>
+	 * 
+	 * @see #getAdditionsInDeletedParagraphOrigin()
+	 * @see #getAdditionsInDeletedParagraphRight()
+	 */
+	public String getAdditionsInDeletedParagraphLeft() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/addition/left.html");
+	}
+	
+	/**
+	 * Right version, changes:
+	 * 
+	 * <ul><li>Text deletion in second paragraph</li></ul>
+	 * 
+	 * @see #getAdditionsInDeletedParagraphOrigin()
+	 * @see #getAdditionsInDeletedParagraphLeft()
+	 */
+	public String getAdditionsInDeletedParagraphRight() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/addition/right.html");
+	}
+	
+	/* Left: paragraph deleted - Right: text deletions in deleted paragraph */
+	
+	/**
+	 * Origin version, contains:
+	 * 
+	 * <ul><li>2 paragraphs with text</li></ul>
+	 * 
+	 * @see #getDeletionsInDeletedParagraphLeft()
+	 * @see #getDeletionsInDeletedParagraphRight()
+	 */
+	public String getDeletionsInDeletedParagraphOrigin() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/deletion/origin.html");
+	}
+
+	/**
+	 * Left version, changes:
+	 * 
+	 * <ul><li>Second paragraph deleted</li></ul>
+	 * 
+	 * @see #getDeletionsInDeletedParagraphOrigin()
+	 * @see #getDeletionsInDeletedParagraphRight()
+	 */
+	public String getDeletionsInDeletedParagraphLeft() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/deletion/left.html");
+	}
+	
+	/**
+	 * Right version, changes:
+	 * 
+	 * <ul><li>Text additions to second paragraph</li></ul>
+	 * 
+	 * @see #getDeletionsInDeletedParagraphOrigin()
+	 * @see #getDeletionsInDeletedParagraphLeft()
+	 */
+	public String getDeletionsInDeletedParagraphRight() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/deletion/right.html");
+	}
+	
 
 	public String getInsertParagraphSameLocationOrigin() throws IOException {
 		return readFile("data/paragraph/insertparagraphssamelocation/origin.html");
@@ -136,6 +213,55 @@ public class RichTextMergeInputData {
 		return readFile("data/paragraph/changemovedparagraph/right.html");
 	}
 
+	/* Changes in different paragraphs with one addition (left) and deletion (right)  */
+
+	/**
+	 * Origin version, contains:
+	 * 
+	 * <ul><li>2 paragraphs with text</li></ul>
+	 * 
+	 * @see #getChangeDifferentParagraphAdditionDeletionLeft()
+	 * @see #getChangeDifferentParagraphAdditionDeletionRight()
+	 */
+	public String getChangeDifferentParagraphAdditionDeletionOrigin() throws IOException {
+		return readFile("data/paragraph/changedifferentparagraph/additiondeletion/origin.html");
+	}
+
+	/**
+	 * Right version, changes:
+	 * 
+	 * <ul><li>Text added to first paragraph</li></ul>
+	 * 
+	 * @see #getChangeDifferentParagraphAdditionDeletionOrigin()
+	 * @see #getChangeDifferentParagraphAdditionDeletionLeft()
+	 */
+	public String getChangeDifferentParagraphAdditionDeletionRight() throws IOException {
+		return readFile("data/paragraph/changedifferentparagraph/additiondeletion/right.html");
+	}
+
+	/**
+	 * Left version, changes:
+	 * 
+	 * <ul><li>Text deleted from first paragraph</li></ul>
+	 * 
+	 * @see #getChangeDifferentParagraphAdditionDeletionOrigin()
+	 * @see #getChangeDifferentParagraphAdditionDeletionRight()
+	 */
+	public String getChangeDifferentParagraphAdditionDeletionLeft() throws IOException {
+		return readFile("data/paragraph/changedifferentparagraph/additiondeletion/left.html");
+	}
+
+	/**
+	 * expected merged version of
+	 * {@link #getChangeDifferentParagraphAdditionDeletionLeft()},
+	 * {@link #getChangeDifferentParagraphAdditionDeletionRight()} and
+	 * {@link #getChangeDifferentParagraphAdditionDeletionOrigin()}
+	 * 
+	 */
+	public String getChangeDifferentParagraphAdditionDeletionResult() throws IOException {
+		return readFile("data/paragraph/changedifferentparagraph/additiondeletion/result.html");
+	}
+	
 	public String getChangeDifferentParagraphDeletionsOrigin() throws IOException {
 		return readFile("data/paragraph/changedifferentparagraph/deletions/origin.html");
 	}
