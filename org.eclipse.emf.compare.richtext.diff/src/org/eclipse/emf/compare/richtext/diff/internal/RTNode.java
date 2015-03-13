@@ -8,42 +8,17 @@
  * Contributors:
  *     Alexandra Buzila - initial API and implementation
  *******************************************************************************/
-package org.eclipse.emf.compare.richtext.diff;
+package org.eclipse.emf.compare.richtext.diff.internal;
+
+import java.util.ArrayList;
 
 import org.outerj.daisy.diff.html.dom.Node;
 import org.outerj.daisy.diff.html.modification.Modification;
 
-/**
- * A difference for {@link Node}s of a rich-text document.
- */
-public class RichTextDiff {
-
-	private Modification modification;
-
-	private RichTextDifferenceState state;
-
-	private Node child;
-
-	public RichTextDifferenceState getState() {
-		return state;
-	}
-
-	public void setState(RichTextDifferenceState state) {
-		this.state = state;
-	}
-
-	public Modification getModification() {
-		return modification;
-	}
-
-	public Node getChild() {
-		return child;
-	}
-
-	public RichTextDiff(Node child, Modification mod) {
-		this.modification = mod;
-		this.child = child;
-		this.state = RichTextDifferenceState.UNRESOLVED;
-	}
+public interface RTNode extends RTNodeMatcher{
+	
+	public Modification getModification();
+	
+	public ArrayList<Node> getListOfChildrenWithoutInsertions();
 
 }
