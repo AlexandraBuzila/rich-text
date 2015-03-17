@@ -503,9 +503,10 @@ public class RichTextMergeInputData {
 	 * @see #getChangeInTableSameCellOrigin()
 	 * @see #getChangeInTableSameCellLeft()
 	 * @see #getChangeInTableSameCellRight()
+	 * @see #getChangeInTableSameCellResult()
 	 */
 	public String getChangeInTableSameCellOrigin() throws IOException {
-		return readFile("data/table/changeinsamecell/origin.html");
+		return readFile("data/table/changeinsamecell/additions/origin.html");
 	}
 
 	/**
@@ -516,9 +517,10 @@ public class RichTextMergeInputData {
 	 * @see #getChangeInTableSameCellOrigin()
 	 * @see #getChangeInTableSameCellLeft()
 	 * @see #getChangeInTableSameCellRight()
+	 * @see #getChangeInTableSameCellResult()
 	 */
 	public String getChangeInTableSameCellLeft() throws IOException {
-		return readFile("data/table/changeinsamecell/left.html");
+		return readFile("data/table/changeinsamecell/additions/left.html");
 	}
 
 	/**
@@ -529,9 +531,77 @@ public class RichTextMergeInputData {
 	 * @see #getChangeInTableSameCellOrigin()
 	 * @see #getChangeInTableSameCellLeft()
 	 * @see #getChangeInTableSameCellRight()
+	 * @see #getChangeInTableSameCellResult()
 	 */
 	public String getChangeInTableSameCellRight() throws IOException {
-		return readFile("data/table/changeinsamecell/right.html");
+		return readFile("data/table/changeinsamecell/additions/right.html");
+	}
+	
+	/**
+	 * Testcase T1.1 - Merged version
+	 * 
+	 * 
+	 * @see #getChangeInTableSameCellOrigin()
+	 * @see #getChangeInTableSameCellLeft()
+	 * @see #getChangeInTableSameCellRight()
+	 * @see #getChangeInTableSameCellResult()
+	 */
+	public String getChangeInTableSameCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/additions/result.html");
+	}
+	
+	/* Testcase T1.2 - Deletions in different paragraphs within a table cell */
+	
+	/**
+	 * Testcase T1.2 - Origin version
+	 * 
+	 * @see #getDeletionsInTableSameCellOrigin()
+	 * @see #getDeletionsInTableSameCellLeft()
+	 * @see #getDeletionsInTableSameCellRight()
+	 * @see #getDeletionsInTableSameCellResult()
+	 */
+	public String getDeletionsInTableSameCellOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/deletions/origin.html");
+	}
+
+	/**
+	 * Testcase T1.2 - Left version, changes:
+	 * 
+	 * <ul><li>Text deletion in first paragraph in first cell</li></ul>
+	 * 
+	 * @see #getDeletionsInTableSameCellOrigin()
+	 * @see #getDeletionsInTableSameCellLeft()
+	 * @see #getDeletionsInTableSameCellRight()
+	 * @see #getDeletionsInTableSameCellResult()
+	 */
+	public String getDeletionsInTableSameCellLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/deletions/left.html");
+	}
+
+	/**
+	 * Testcase T1.2 - Right version, changes:
+	 * 
+	 * <ul><li>Text deletion in second paragraph in first cell</li></ul>
+	 * 
+	 * @see #getDeletionsInTableSameCellOrigin()
+	 * @see #getDeletionsInTableSameCellLeft()
+	 * @see #getDeletionsInTableSameCellRight()
+	 * @see #getDeletionsInTableSameCellResult()
+	 */
+	public String getDeletionsInTableSameCellRight() throws IOException {
+		return readFile("data/table/changeinsamecell/deletions/right.html");
+	}
+	
+	/**
+	 * Testcase T1.2 - Merged version
+	 * 
+	 * @see #getDeletionsInTableSameCellOrigin()
+	 * @see #getDeletionsInTableSameCellLeft()
+	 * @see #getDeletionsInTableSameCellRight()
+	 * @see #getDeletionsInTableSameCellResult()
+	 */
+	public String getDeletionsInTableSameCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/deletions/result.html");
 	}
 
 	/* Testcase T3.1 - Insert column (left), remove column (right) */

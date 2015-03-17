@@ -268,6 +268,53 @@ public class ThreeWayRichTextDiffTest {
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertFalse(diff.isConflicting());
 	}
+	
+	/**
+	 * Testcase T1.1 - tests merge result
+	 */
+	@Test
+	public void testMerge_changeInDifferentParagraphs_sameTableCell() throws IOException {
+		String origin = inputData.getChangeInTableSameCellOrigin();
+		String left = inputData.getChangeInTableSameCellLeft();
+		String right = inputData.getChangeInTableSameCellRight();
+		String result = inputData.getChangeInTableSameCellResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
+	}
+
+	/* Testcase T1.2 - Deletions in different paragraphs within a table cell */
+	
+	/**
+	 * Testcase T1.2 - tests conflict state
+	 */
+	@Test
+	public void testConflict_deletionsInDifferentParagraphs_sameTableCell() throws IOException {
+		String origin = inputData.getDeletionsInTableSameCellOrigin();
+		String left = inputData.getDeletionsInTableSameCellLeft();
+		String right = inputData.getDeletionsInTableSameCellRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertFalse(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T1.2 - tests merge result
+	 */
+	@Test
+	public void testMerge_deletionsInDifferentParagraphs_sameTableCell() throws IOException {
+		String origin = inputData.getDeletionsInTableSameCellOrigin();
+		String left = inputData.getDeletionsInTableSameCellLeft();
+		String right = inputData.getDeletionsInTableSameCellRight();
+		String result = inputData.getDeletionsInTableSameCellResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
+	}
 
 	/* Testcase T3.1 - Insert column (left), remove column (right) */
 	
