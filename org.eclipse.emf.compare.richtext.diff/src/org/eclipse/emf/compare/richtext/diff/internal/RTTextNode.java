@@ -65,7 +65,7 @@ public class RTTextNode extends TextNode implements RTNode {
 	@Override
 	public void setParent(TagNode parent) {
 		super.setParent(parent);
-		if (!(parent instanceof RTNode)) {
+		if (parent!= null && !(parent instanceof RTNode)) {
 			//TODO externalize
 			throw new IllegalArgumentException("The parent of a RTTextNode must be a RTNode.");
 		}

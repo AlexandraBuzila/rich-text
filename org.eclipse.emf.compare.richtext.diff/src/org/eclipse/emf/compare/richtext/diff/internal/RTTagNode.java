@@ -11,6 +11,8 @@
 package org.eclipse.emf.compare.richtext.diff.internal;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ import org.outerj.daisy.diff.html.dom.TextNode;
 import org.outerj.daisy.diff.html.modification.Modification;
 import org.outerj.daisy.diff.html.modification.ModificationType;
 import org.xml.sax.Attributes;
+import org.xml.sax.helpers.AttributesImpl;
 
 public class RTTagNode extends TagNode implements RTNode {
 
@@ -33,6 +36,7 @@ public class RTTagNode extends TagNode implements RTNode {
 	public RTTagNode(TagNode parent, String qName, Attributes attributesarg) {
 		super(parent, qName, attributesarg);
 		this._children = getChildrenPrivate();
+		modification = new Modification(ModificationType.NONE, ModificationType.NONE);
 	}
 
 	@Override
@@ -61,8 +65,8 @@ public class RTTagNode extends TagNode implements RTNode {
 			return true;
 		}
 
-		ArrayList<Node> ourNeighbors = ((RTTagNode) getParent()).getListOfChildrenWithoutInsertions();
-		ArrayList<Node> otherNeighbors = ((RTTagNode) tagNode.getParent()).getListOfChildrenWithoutInsertions();
+		ArrayList<Node> ourNeighbors = ((RTNode) getParent()).getListOfChildrenWithoutInsertions();
+		ArrayList<Node> otherNeighbors = ((RTNode) tagNode.getParent()).getListOfChildrenWithoutInsertions();
 
 		int thisIndexInParent = ourNeighbors.indexOf(this);
 		int otherIndexInParent = otherNeighbors.indexOf(tagNode);
@@ -102,6 +106,112 @@ public class RTTagNode extends TagNode implements RTNode {
 		}
 		return true;
 	}
+	
+	// We have to override this to satisfy the condition that all RTTextNode
+	// only have RTNodes as parent, as the original implementation creates
+	// TagNodes instead of RTTagNodes
+	@Override
+	public boolean splitUntill(TagNode parent, Node split, boolean includeLeft) {
+        boolean splitOccured = false;
+        if (parent != this) {
+            TagNode part1 = new RTTagNode(null, getQName(), getAttributes());
+            TagNode part2 = new RTTagNode(null, getQName(), getAttributes());
+            part1.setParent(getParent());
+            part2.setParent(getParent());
+
+            // FIXME maybe we should find a better solution to access the children
+            int i = 0;
+            while (i < _children.size() && _children.get(i) != split) {
+                _children.get(i).setParent(part1);
+                part1.addChild(_children.get(i));
+                i++;
+            }
+            if (i < _children.size()) {//means we've found "split" node
+                if (includeLeft) {
+                    _children.get(i).setParent(part1);
+                    part1.addChild(_children.get(i));
+                } else {
+                    _children.get(i).setParent(part2);
+                    part2.addChild(_children.get(i));
+                }
+                i++;
+            }
+            while (i < _children.size()) {
+                _children.get(i).setParent(part2);
+                part2.addChild(_children.get(i));
+                i++;
+            }
+            if (part1.getNbChildren() > 0) {
+				getParent().addChild(getParent().getIndexOf(this), part1);
+			}
+
+            if (part2.getNbChildren() > 0) {
+				getParent().addChild(getParent().getIndexOf(this), part2);
+			}
+
+            if (part1.getNbChildren() > 0 && part2.getNbChildren() > 0) {
+                splitOccured = true;
+            }
+            
+            //since split isn't meant for no-children tags,
+            //we won't have a case where we removed this and did not
+            //substitute it with anything
+            detachFromParent();
+
+            if (includeLeft) {
+				getParent().splitUntill(parent, part1, includeLeft);
+			} else {
+				getParent().splitUntill(parent, part2, includeLeft);
+			}
+        }
+        return splitOccured;
+
+    }
+	
+	/**
+	 * detaches this node from its parent node
+	 */
+	private void detachFromParent(){
+        // FIXME this is a quick & dirty hack, we really should find a better solution
+        Method removeMethod;
+		try {
+			removeMethod = TagNode.class.getDeclaredMethod("removeChild", Node.class );
+	        removeMethod.setAccessible(true);
+	        removeMethod.invoke(getParent(), this);
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	// We have to override this to satisfy the condition that all RTTextNode
+	// only have RTNodes as parent, as the original implementation creates
+	// TagNodes instead of RTTagNodes
+	@Override
+    public Node copyTree() {
+        TagNode newThis = new RTTagNode(null, getQName(), new AttributesImpl(
+                getAttributes()));
+        newThis.setWhiteBefore(isWhiteBefore());
+        newThis.setWhiteAfter(isWhiteAfter());
+        for (Node child : this) {
+            Node newChild = child.copyTree();
+            newChild.setParent(newThis);
+            newThis.addChild(newChild);
+        }
+        return newThis;
+    }
 
 	// /**
 	// * @param child

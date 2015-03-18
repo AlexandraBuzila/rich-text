@@ -389,8 +389,7 @@ public class ThreeWayRichTextDiff {
 			return;
 
 		TagNode tagParent = (TagNode) parent;
-		ArrayList<Node> childrenWithoutInsertions = ((RTNode) child.getParent()).getListOfChildrenWithoutInsertions();
-		int index = childrenWithoutInsertions.indexOf(child);
+		int index = child.getParent().getIndexOf(child);
 
 		Node clone = child.copyTree();
 		clone.setParent(tagParent);
