@@ -316,6 +316,144 @@ public class ThreeWayRichTextDiffTest {
 		Assert.assertEquals(result, merged);
 	}
 
+	/* Testcase T1.3 - Addition (left) & deletion (right) in different paragraphs within a table cell */
+	
+	/**
+	 * Testcase T1.3 - tests conflict state
+	 */
+	@Test
+	public void testConflict_additiondeletionInDifferentParagraphs_sameTableCell() throws IOException {
+		String origin = inputData.getAdditionDeletionInTableSameCellOrigin();
+		String left = inputData.getAdditionDeletionInTableSameCellLeft();
+		String right = inputData.getAdditionDeletionInTableSameCellRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertFalse(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T1.3 - tests merge result
+	 */
+	@Test
+	public void testMerge_additiondeletionInDifferentParagraphs_sameTableCell() throws IOException {
+		String origin = inputData.getAdditionDeletionInTableSameCellOrigin();
+		String left = inputData.getAdditionDeletionInTableSameCellLeft();
+		String right = inputData.getAdditionDeletionInTableSameCellRight();
+		String result = inputData.getAdditionDeletionInTableSameCellResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
+	}
+	
+	/* Testcase T2.1 - Insertion of new paragraphs at different locations within a table cell */
+	
+	/**
+	 * Testcase T2.1 - tests conflict state
+	 */
+	@Test
+	public void testConflict_insertParagraphAtDifferentLocation_sameTableCell() throws IOException {
+		String origin = inputData.getInsertParagraphAtDifferentLocationInSameTableCellOrigin();
+		String left = inputData.getInsertParagraphAtDifferentLocationInSameTableCellLeft();
+		String right = inputData.getInsertParagraphAtDifferentLocationInSameTableCellRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertFalse(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T2.1 - tests merge result
+	 */
+	@Test
+	public void testMerge_insertParagraphAtDifferentLocation_sameTableCell() throws IOException {
+		String origin = inputData.getInsertParagraphAtDifferentLocationInSameTableCellOrigin();
+		String left = inputData.getInsertParagraphAtDifferentLocationInSameTableCellLeft();
+		String right = inputData.getInsertParagraphAtDifferentLocationInSameTableCellRight();
+		String result = inputData.getInsertParagraphAtDifferentLocationInSameTableCellResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
+	}
+
+	/* Testcase T2.2 - Insertion of new paragraphs at the same location within a table cell */
+	
+	/**
+	 * Testcase T2.2 - tests conflict state
+	 */
+	@Test
+	public void testConflict_insertParagraphAtSameLocation_sameTableCell() throws IOException {
+		String origin = inputData.getInsertParagraphAtSameLocationInSameTableCellOrigin();
+		String left = inputData.getInsertParagraphAtSameLocationInSameTableCellLeft();
+		String right = inputData.getInsertParagraphAtSameLocationInSameTableCellRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertTrue(diff.isConflicting());
+	}
+
+	/* Testcase T2.3 - Insertion of new paragraphs and same content (Pseudoconflict) at the same location within a table cell */
+	
+	/**
+	 * Testcase T2.3 - tests conflict state
+	 */
+	@Test
+	public void testConflict_insertParagraphAtSameLocation_sameTableCell_pseudoConflict() throws IOException {
+		String origin = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin();
+		String left = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft();
+		String right = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertFalse(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T2.3 - tests merge result
+	 */
+	@Test
+	public void testMerge_insertParagraphAtSameLocation_sameTableCell_pseudoConflict() throws IOException {
+		String origin = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin();
+		String left = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft();
+		String right = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight();
+		String result = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
+	}
+	
+	/* Testcase T2.4 - Text addition in deleted paragraph */
+
+	/**
+	 * Testcase T2.4 - tests conflict state
+	 */
+	@Test
+	public void testConflict_additionInDeletedParagraph_sameTableCell() throws IOException {
+		String origin = inputData.getAdditionsInDeletedParagraphInSameTableCellOrigin();
+		String left = inputData.getAdditionsInDeletedParagraphInSameTableCellLeft();
+		String right = inputData.getAdditionsInDeletedParagraphInSameTableCellRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertTrue(diff.isConflicting());
+	}
+
+	/* Testcase T2.5 - Text addition in deleted paragraph */
+	
+	/**
+	 * Testcase T2.5 - tests conflict state
+	 */
+	@Test
+	public void testConflict_deletionInDeletedParagraph_sameTableCell() throws IOException {
+		String origin = inputData.getDeletionsInDeletedParagraphInSameTableCellOrigin();
+		String left = inputData.getDeletionsInDeletedParagraphInSameTableCellLeft();
+		String right = inputData.getDeletionsInDeletedParagraphInSameTableCellRight();
+
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		Assert.assertTrue(diff.isConflicting());
+	}
+	
 	/* Testcase T3.1 - Insert column (left), remove column (right) */
 	
 	/**
@@ -329,6 +467,22 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertFalse(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T3.1 - tests merge result
+	 */
+	@Test
+	public void testMerge_addRemoveColumn() throws IOException {
+		String origin = inputData.getAddRemoveTableColumnOrigin();
+		String left = inputData.getAddRemoveTableColumnLeft();
+		String right = inputData.getAddRemoveTableColumnRight();
+		String result = inputData.getAddRemoveTableColumnResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
 	}
 
 	/* Testcase T3.2 - Insert row (right), remove row (left) */
@@ -344,6 +498,22 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertFalse(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T3.2 - tests merge result
+	 */
+	@Test
+	public void testMerge_addRemoveRow() throws IOException {
+		String origin = inputData.getAddRemoveTableRowOrigin();
+		String left = inputData.getAddRemoveTableRowLeft();
+		String right = inputData.getAddRemoveTableRowRight();
+		String result = inputData.getAddRemoveTableRowResult();
+		
+		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, merged);
 	}
 
 	/* Testcase T3.3 - Insert column (left), remove row (right) */

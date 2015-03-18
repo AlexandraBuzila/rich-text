@@ -603,7 +603,287 @@ public class RichTextMergeInputData {
 	public String getDeletionsInTableSameCellResult() throws IOException {
 		return readFile("data/table/changeinsamecell/deletions/result.html");
 	}
+	
+	/* Testcase T1.3 - Addition (left) & deletion (right) in different paragraphs within a table cell */
+	
+	/**
+	 * Testcase T1.3 - Origin version
+	 * 
+	 * @see #getAdditionDeletionInTableSameCellOrigin()
+	 * @see #getAdditionDeletionInTableSameCellLeft()
+	 * @see #getAdditionDeletionInTableSameCellRight()
+	 * @see #getAdditionDeletionInTableSameCellResult()
+	 */
+	public String getAdditionDeletionInTableSameCellOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/additiondeletion/origin.html");
+	}
 
+	/**
+	 * Testcase T1.3 - Left version, changes:
+	 * 
+	 * <ul><li>Text addition in first paragraph in first cell</li></ul>
+	 * 
+	 * @see #getAdditionDeletionInTableSameCellOrigin()
+	 * @see #getAdditionDeletionInTableSameCellLeft()
+	 * @see #getAdditionDeletionInTableSameCellRight()
+	 * @see #getAdditionDeletionInTableSameCellResult()
+	 */
+	public String getAdditionDeletionInTableSameCellLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/additiondeletion/left.html");
+	}
+
+	/**
+	 * Testcase T1.3 - Right version, changes:
+	 * 
+	 * <ul><li>Text deletion in second paragraph in first cell</li></ul>
+	 * 
+	 * @see #getAdditionDeletionInTableSameCellOrigin()
+	 * @see #getAdditionDeletionInTableSameCellLeft()
+	 * @see #getAdditionDeletionInTableSameCellRight()
+	 * @see #getAdditionDeletionInTableSameCellResult()
+	 */
+	public String getAdditionDeletionInTableSameCellRight() throws IOException {
+		return readFile("data/table/changeinsamecell/additiondeletion/right.html");
+	}
+	
+	/**
+	 * Testcase T1.3 - Merged version
+	 * 
+	 * @see #getAdditionDeletionInTableSameCellOrigin()
+	 * @see #getAdditionDeletionInTableSameCellLeft()
+	 * @see #getAdditionDeletionInTableSameCellRight()
+	 * @see #getAdditionDeletionInTableSameCellResult()
+	 */
+	public String getAdditionDeletionInTableSameCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/additiondeletion/result.html");
+	}
+	
+	/* Testcase T2.1 - Insertion of new paragraphs at different locations within a table cell */
+	
+	/**
+	 * Testcase T2.1 - Origin version
+	 * 
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellResult()
+	 */
+	public String getInsertParagraphAtDifferentLocationInSameTableCellOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/differentlocation/origin.html");
+	}
+
+	/**
+	 * Testcase T2.1 - Left version, changes:
+	 * 
+	 * <ul><li>New paragraph after first paragraph</li></ul>
+	 * 
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellResult()
+	 */
+	public String getInsertParagraphAtDifferentLocationInSameTableCellLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/differentlocation/left.html");
+	}
+
+	/**
+	 * Testcase T2.1 - Right version, changes:
+	 * 
+	 * <ul><li>New paragraph after second paragraph</li></ul>
+	 * 
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellResult()
+	 */
+	public String getInsertParagraphAtDifferentLocationInSameTableCellRight() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/differentlocation/right.html");
+	}
+	
+	/**
+	 * Testcase T2.1 - Merged version
+	 * 
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtDifferentLocationInSameTableCellResult()
+	 */
+	public String getInsertParagraphAtDifferentLocationInSameTableCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/differentlocation/result.html");
+	}
+
+	/* Testcase T2.2 - Insertion of new paragraphs at the same location within a table cell */
+	
+	/**
+	 * Testcase T2.2 - Origin version
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/origin.html");
+	}
+
+	/**
+	 * Testcase T2.2 - Left version, changes:
+	 * 
+	 * <ul><li>New paragraph after first paragraph, with different content as the right version</li></ul>
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/left.html");
+	}
+
+	/**
+	 * Testcase T2.2 - Right version, changes:
+	 * 
+	 * <ul><li>New paragraph after first paragraph, with different content as the left version</li></ul>
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellRight() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/right.html");
+	}
+
+	/* Testcase T2.3 - Insertion of new paragraphs and same content (Pseudoconflict) at the same location within a table cell */
+	
+	/**
+	 * Testcase T2.3 - Origin version
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/pseudoconflict/origin.html");
+	}
+
+	/**
+	 * Testcase T2.3 - Left version, changes:
+	 * 
+	 * <ul><li>New paragraph after first paragraph, with the same content as the right version</li></ul>
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/pseudoconflict/left.html");
+	}
+
+	/**
+	 * Testcase T2.3 - Right version, changes:
+	 * 
+	 * <ul><li>New paragraph after first paragraph, with the same content as the left version</li></ul>
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/pseudoconflict/right.html");
+	}
+	
+	/**
+	 * Testcase T2.3 - Merged version
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/pseudoconflict/result.html");
+	}
+	
+	/* Testcase T2.4 - Text addition in deleted paragraph */
+	
+	/**
+	 * Testcase T2.4 - Origin version
+	 * 
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 */
+	public String getAdditionsInDeletedParagraphInSameTableCellOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/origin.html");
+	}
+
+	/**
+	 * Testcase T2.4 - Left version, changes:
+	 * 
+	 * <ul><li>Deletes second paragraph</li></ul>
+	 * 
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 */
+	public String getAdditionsInDeletedParagraphInSameTableCellLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/left.html");
+	}
+
+	/**
+	 * Testcase T2.4 - Right version, changes:
+	 * 
+	 * <ul><li>Text additions in second paragraph</li></ul>
+	 * 
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 */
+	public String getAdditionsInDeletedParagraphInSameTableCellRight() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/right.html");
+	}
+	
+
+	/* Testcase T2.5 - Text addition in deleted paragraph */
+	
+	/**
+	 * Testcase T2.5 - Origin version
+	 * 
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 */
+	public String getDeletionsInDeletedParagraphInSameTableCellOrigin() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/origin.html");
+	}
+
+	/**
+	 * Testcase T2.5 - Left version, changes:
+	 * 
+	 * <ul><li>Deletes second paragraph</li></ul>
+	 * 
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 */
+	public String getDeletionsInDeletedParagraphInSameTableCellLeft() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/left.html");
+	}
+
+	/**
+	 * Testcase T2.5 - Right version, changes:
+	 * 
+	 * <ul><li>Text deletions in second paragraph</li></ul>
+	 * 
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 */
+	public String getDeletionsInDeletedParagraphInSameTableCellRight() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/right.html");
+	}
+	
 	/* Testcase T3.1 - Insert column (left), remove column (right) */
 	
 	/**
@@ -612,6 +892,7 @@ public class RichTextMergeInputData {
 	 * @see #getAddRemoveTableColumnOrigin()
 	 * @see #getAddRemoveTableColumnLeft()
 	 * @see #getAddRemoveTableColumnRight()
+	 * @see #getAddRemoveTableColumnResult()
 	 */
 	public String getAddRemoveTableColumnOrigin() throws IOException {
 		return readFile("data/table/addcolumnremovecolumn/origin.html");
@@ -625,6 +906,7 @@ public class RichTextMergeInputData {
 	 * @see #getAddRemoveTableColumnOrigin()
 	 * @see #getAddRemoveTableColumnLeft()
 	 * @see #getAddRemoveTableColumnRight()
+	 * @see #getAddRemoveTableColumnResult()
 	 */
 	public String getAddRemoveTableColumnLeft() throws IOException {
 		return readFile("data/table/addcolumnremovecolumn/left.html");
@@ -638,9 +920,23 @@ public class RichTextMergeInputData {
 	 * @see #getAddRemoveTableColumnOrigin()
 	 * @see #getAddRemoveTableColumnLeft()
 	 * @see #getAddRemoveTableColumnRight()
+	 * @see #getAddRemoveTableColumnResult()
 	 */
 	public String getAddRemoveTableColumnRight() throws IOException {
 		return readFile("data/table/addcolumnremovecolumn/right.html");
+	}
+	
+	/**
+	 * Testcase T3.1 - Merged version:
+	 * 
+	 * 
+	 * @see #getAddRemoveTableColumnOrigin()
+	 * @see #getAddRemoveTableColumnLeft()
+	 * @see #getAddRemoveTableColumnRight()
+	 * @see #getAddRemoveTableColumnResult()
+	 */
+	public String getAddRemoveTableColumnResult() throws IOException {
+		return readFile("data/table/addcolumnremovecolumn/result.html");
 	}
 
 	/* Testcase T3.2 - Insert row (right), remove row (left) */
@@ -651,6 +947,7 @@ public class RichTextMergeInputData {
 	 * @see #getAddRemoveTableRowOrigin()
 	 * @see #getAddRemoveTableRowLeft()
 	 * @see #getAddRemoveTableRowRight()
+	 * @see #getAddRemoveTableRowResult()
 	 */
 	public String getAddRemoveTableRowOrigin() throws IOException {
 		return readFile("data/table/addrowremoverow/origin.html");
@@ -664,6 +961,7 @@ public class RichTextMergeInputData {
 	 * @see #getAddRemoveTableRowOrigin()
 	 * @see #getAddRemoveTableRowLeft()
 	 * @see #getAddRemoveTableRowRight()
+	 * @see #getAddRemoveTableRowResult()
 	 */
 	public String getAddRemoveTableRowLeft() throws IOException {
 		return readFile("data/table/addrowremoverow/left.html");
@@ -677,9 +975,24 @@ public class RichTextMergeInputData {
 	 * @see #getAddRemoveTableRowOrigin()
 	 * @see #getAddRemoveTableRowLeft()
 	 * @see #getAddRemoveTableRowRight()
+	 * @see #getAddRemoveTableRowResult()
 	 */
 	public String getAddRemoveTableRowRight() throws IOException {
 		return readFile("data/table/addrowremoverow/right.html");
+	}
+	
+	/**
+	 * Testcase T3.2 - Merged version, changes:
+	 * 
+	 * <ul><li>adds row at the end</li></ul>
+	 * 
+	 * @see #getAddRemoveTableRowOrigin()
+	 * @see #getAddRemoveTableRowLeft()
+	 * @see #getAddRemoveTableRowRight()
+	 * @see #getAddRemoveTableRowResult()
+	 */
+	public String getAddRemoveTableRowResult() throws IOException {
+		return readFile("data/table/addrowremoverow/result.html");
 	}
 
 	/* Testcase T3.3 - Insert column (left), remove row (right) */
@@ -720,17 +1033,6 @@ public class RichTextMergeInputData {
 	public String getAddColumnRemoveTableRowRight() throws IOException {
 		return readFile("data/table/addcolumnremoverow/right.html");
 	}
-
-	
-	
-
-	
-
-
-
-	
-
-	
 
 	
 	private String readFile(String filename) throws IOException {
