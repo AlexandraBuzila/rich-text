@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Alexandra Buzila - initial API and implementation
+ *     Florian Zoubek - bugfixes
  *******************************************************************************/
 package org.eclipse.emf.compare.richtext.diff.internal;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import org.outerj.daisy.diff.html.dom.Node;
 import org.outerj.daisy.diff.html.dom.TagNode;
 import org.outerj.daisy.diff.html.dom.TextNode;
+import org.outerj.daisy.diff.html.dom.WhiteSpaceNode;
 import org.outerj.daisy.diff.html.modification.Modification;
 import org.outerj.daisy.diff.html.modification.ModificationType;
 import org.xml.sax.Attributes;
@@ -237,6 +239,45 @@ public class RTTagNode extends TagNode implements RTNode {
 		}
 		return childrenNoInsertions;
 	}
+	
+	// we have to override this method to use RTWhiteSpaceNodes instead of
+	// WhiteSpaceNodes, which are necessary for merge operations. 
+	@Override
+	public void expandWhiteSpace() {
+
+        int shift = 0;
+        boolean spaceAdded = false;
+
+        int nbOriginalChildren = getNbChildren();
+        for (int i = 0; i < nbOriginalChildren; i++) {
+            Node child = getChild(i + shift);
+            try {
+                TagNode tagChild = (TagNode) child;
+
+                if (!tagChild.isPre()) {
+                    tagChild.expandWhiteSpace();
+                }
+            } catch (ClassCastException e) {
+            }
+
+            if (!spaceAdded && child.isWhiteBefore()) {
+                WhiteSpaceNode ws = new RTWhiteSpaceNode(null, " ", child
+                        .getLeftMostChild());
+                ws.setParent(this);
+                addChild(i + (shift++), ws);
+            }
+            if (child.isWhiteAfter()) {
+                WhiteSpaceNode ws = new RTWhiteSpaceNode(null, " ", child
+                        .getRightMostChild());
+                ws.setParent(this);
+                addChild(i + 1 + (shift++), ws);
+                spaceAdded = true;
+            } else {
+                spaceAdded = false;
+            }
+
+        }
+    }
 
 	private boolean isInsert(Node node) {
 		if (node instanceof RTTagNode) {

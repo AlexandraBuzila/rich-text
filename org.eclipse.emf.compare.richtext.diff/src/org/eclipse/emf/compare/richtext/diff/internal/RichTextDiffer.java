@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Alexandra Buzila - initial API and implementation
+ *     Florian Zoubek - bugfixes
  *******************************************************************************/
 package org.eclipse.emf.compare.richtext.diff.internal;
 
@@ -21,6 +22,7 @@ import org.outerj.daisy.diff.html.HTMLDiffer;
 import org.outerj.daisy.diff.html.TextNodeComparator;
 import org.outerj.daisy.diff.html.dom.Node;
 import org.outerj.daisy.diff.html.dom.TagNode;
+import org.outerj.daisy.diff.html.dom.WhiteSpaceNode;
 import org.outerj.daisy.diff.html.modification.Modification;
 import org.outerj.daisy.diff.html.modification.ModificationType;
 import org.outerj.daisy.diff.output.DiffOutput;
@@ -84,6 +86,14 @@ public class RichTextDiffer {
 				Modification mod = textChild.getModification();
 				if (mod.getType() != ModificationType.NONE) {
 					diffs.add(new RichTextDiff(textChild, mod));
+				}
+			}
+			
+			if(child instanceof WhiteSpaceNode){
+				WhiteSpaceNode whitespace = (WhiteSpaceNode) child;
+				Modification mod = whitespace.getModification();
+				if (mod.getType() != ModificationType.NONE) {
+					diffs.add(new RichTextDiff(whitespace, mod));
 				}
 			}
 		}
