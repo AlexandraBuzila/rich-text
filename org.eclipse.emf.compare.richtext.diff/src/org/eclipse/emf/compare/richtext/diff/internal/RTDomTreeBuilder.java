@@ -16,8 +16,8 @@
 package org.eclipse.emf.compare.richtext.diff.internal;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-
 import org.outerj.daisy.diff.html.dom.BodyNode;
 import org.outerj.daisy.diff.html.dom.DomTree;
 import org.outerj.daisy.diff.html.dom.DomTreeBuilder;
@@ -255,6 +255,65 @@ public class RTDomTreeBuilder extends DefaultHandler implements DomTree {
 		default:
 			return false;
 		}
+	}
+	
+	/**
+	 * 
+	 * @return a copy of the DOM tree
+	 */
+	public DomTree getDomTreeCopy(){
+		List<TextNode> copiedTextNodes = new ArrayList<TextNode>(textNodes.size());
+		BodyNode copiedBodyNode = (BodyNode)bodyNode.copyTree();
+		
+		copyTextNodes(copiedBodyNode, copiedTextNodes);
+		
+		return new SimpleDomTree(copiedTextNodes, copiedBodyNode);
+	}
+	
+	/**
+	 * copies all text nodes within the tag tree with the given root node in the given list. 
+	 * @param node the root node of the tag tree
+	 * @param copiedTextNodes the list used to store the text nodes
+	 */
+	private void copyTextNodes(TagNode node, List<TextNode> copiedTextNodes){
+		Iterator<Node> childIterator = node.iterator();
+		while(childIterator.hasNext()){
+			Node child = childIterator.next();
+			if(child instanceof TextNode){
+				copiedTextNodes.add((TextNode) child);
+			}else if (child instanceof TagNode){
+				copyTextNodes((TagNode) child, copiedTextNodes);
+			}
+		}
+	}
+	
+	/**
+	 * A simple implementation of a {@link DomTree}, which provides no other
+	 * functionality than storing the data of a {@link DomTree}.
+	 * 
+	 * @author Florian Zoubek
+	 *
+	 */
+	private class SimpleDomTree implements DomTree{
+		
+		private List<TextNode> textNodes;
+		
+		private BodyNode bodyNode;
+		
+		public SimpleDomTree(List<TextNode> textNodes, BodyNode bodyNode) {
+			super();
+			this.textNodes = textNodes;
+			this.bodyNode = bodyNode;
+		}
+		@Override
+		public List<TextNode> getTextNodes() {
+			return textNodes;
+		}
+		@Override
+		public BodyNode getBodyNode() {
+			return bodyNode;
+		}
+		
 	}
 
 }
