@@ -8,6 +8,7 @@
  * Contributors:
  *     Philip Langer - initial API and implementation
  *     Alexandra Buzila
+ *     Florian Zoubek
  *******************************************************************************/
 package org.eclipse.emf.compare.richtext.diff;
 
@@ -16,6 +17,7 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.transform.TransformerConfigurationException;
@@ -26,11 +28,11 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.emf.compare.richtext.diff.internal.RTNode;
 import org.eclipse.emf.compare.richtext.diff.internal.RTTagNode;
+import org.eclipse.emf.compare.richtext.diff.internal.RTTextNode;
 import org.eclipse.emf.compare.richtext.diff.internal.RichTextDiffer;
 import org.eclipse.emf.compare.richtext.diff.internal.StringOutputGenerator;
 import org.outerj.daisy.diff.html.TextNodeComparator;
 import org.outerj.daisy.diff.html.dom.Node;
-import org.outerj.daisy.diff.html.dom.SeparatingNode;
 import org.outerj.daisy.diff.html.dom.TagNode;
 import org.outerj.daisy.diff.html.dom.TextNode;
 import org.outerj.daisy.diff.html.modification.ModificationType;
@@ -199,29 +201,14 @@ public class ThreeWayRichTextDiff {
 	// for diffs are implemented
 	private ConflictState hasConflictingStructuralChanges() {
 		for (RichTextDiff diff : leftDiffs) {
-			RTTagNode firstParent = findParent(diff.getChild());
-			if (!firstParent.getQName().equals("body")) {
+			TagNode firstParent = findParent(diff.getChild());
+			if (!firstParent.getQName().equals("body") && firstParent instanceof RTTagNode) {
 				for (RichTextDiff diff2 : rightDiffs) {
-					RTTagNode secondParent = findParent(diff2.getChild());
-					if (firstParent.isSameNode(secondParent)) {
-						if (firstParent.getNbChildren() == secondParent.getNbChildren()) {
-							boolean equal = true;
-							int i = 0;
-							while (equal && i < firstParent.getNbChildren()) {
-								Node firstChild = firstParent.getChild(i);
-								Node secondChild = secondParent.getChild(i);
-								if (!(firstChild instanceof SeparatingNode) && !(secondChild instanceof SeparatingNode)) {
-									if (firstChild instanceof TextNode) {
-										equal = ((TextNode) firstChild).isSameText(secondChild);
-									} else {
-										equal = firstChild.equals(secondChild);
-									}
-								}
-								i++;
-							}
-							if (equal) {
-								continue;
-							}
+					TagNode secondParent = findParent(diff2.getChild());
+					if (secondParent instanceof RTTagNode && ((RTTagNode)firstParent).isSameNode((RTTagNode)secondParent)) {
+						
+						if(areNodeTreesEqual((RTTagNode)firstParent, (RTTagNode)secondParent)){
+							continue;
 						}
 
 						return ConflictState.CONFLICTING;
@@ -231,14 +218,57 @@ public class ThreeWayRichTextDiff {
 		}
 		return ConflictState.NOT_CONFLICTING;
 	}
+	
+	/**
+	 * tests if two node trees are equal by checking their qualified name,
+	 * modification type, children (and their order) and text.
+	 * 
+	 * @param treeRoot1
+	 *            the root {@link TagNode} of the first tree
+	 * @param treeRoot2
+	 *            the root {@link TagNode} of the second tree
+	 * @return true if the trees are equal in the sense of equal qualified names
+	 *         and equal children for {@link RTTagNode}s, as well as equal text
+	 *         for {@link RTTextNode}s, false otherwise.
+	 */
+	private static boolean areNodeTreesEqual(RTTagNode treeRoot1, RTTagNode treeRoot2){
+		
+		if(treeRoot1.isSameTag(treeRoot2)){
+			
+			if(treeRoot1.getChildren().size() == treeRoot2.getChildren().size()){
+				Iterator<Node> tree1ChildIt = treeRoot1.iterator();
+				Iterator<Node> tree2ChildIt = treeRoot2.iterator();
+				while(tree1ChildIt.hasNext()){
+					Node child1 = tree1ChildIt.next();
+					Node child2 = tree2ChildIt.next();
+					if(child1 instanceof TextNode && child2 instanceof TextNode){
+						if(!((TextNode)child1).isSameText(child2) || ((TextNode)child1).getModification().getType() != ((TextNode)child2).getModification().getType() ){
+							return false;
+						}
+					}else if(child1 instanceof RTTagNode && child2 instanceof RTTagNode){
+						if(!areNodeTreesEqual((RTTagNode)child1, (RTTagNode)child2)){
+							return false;
+						}
+					}else{
+						if( !child1.equals(child2)){
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * @return the first parent of the node, that is a structure node (table
 	 *         cell, paragraph, body node)
 	 */
-	private RTTagNode findParent(Node child) {
+	private TagNode findParent(Node child) {
 		if (isStructureNode(child.getParent())) {
-			return (RTTagNode) child.getParent();
+			return child.getParent();
 		}
 		return findParent(child.getParent());
 	}
