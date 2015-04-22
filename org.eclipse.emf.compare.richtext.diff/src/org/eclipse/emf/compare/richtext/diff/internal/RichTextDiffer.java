@@ -284,8 +284,6 @@ public class RichTextDiffer {
 						if(!areNodeTreesEqual((RTTagNode)child1, (RTTagNode)child2)){
 							return false;
 						}
-					}else{
-						return false;
 					}
 				}
 				return true;

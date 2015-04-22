@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Alexandra Buzila - initial API and implementation
+ *     Florian Zoubek
  *******************************************************************************/
 package org.eclipse.emf.compare.richtext.diff;
 
@@ -44,6 +45,12 @@ public class RichTextDiff {
 		this.modification = mod;
 		this.child = child;
 		this.state = RichTextDifferenceState.UNRESOLVED;
+	}
+
+	@Override
+	public String toString() {
+		return "RichTextDiff [modificationType=" + modification.getType() + ", state="
+				+ state + ", child=" + child + "]";
 	}
 
 }

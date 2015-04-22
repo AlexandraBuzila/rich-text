@@ -36,6 +36,26 @@ import org.outerj.daisy.diff.html.modification.ModificationType;
  */
 public class RichTextDifferTest {
 	
+	/*
+	 * No change testcases
+	 * ===================
+	 */
+	
+	/**
+	 * Testcase NC 1 - tests if the same versions of various nested tags produce
+	 * no diffs
+	 */
+	@Test
+	public void testDiff_noChange_variousNestedTags(){
+
+		String origin = "<div><p>This is <i>line</i> 1<br/></p></div>";
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, origin);
+		
+		assertTrue("Diffs found but none expected - found diffs: " + diffs.toString(), diffs.isEmpty());
+	}
+	
 	/* 
 	 * Simple text testcases
 	 * =====================
