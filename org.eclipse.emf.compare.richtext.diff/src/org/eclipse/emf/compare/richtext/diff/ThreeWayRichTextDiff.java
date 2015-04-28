@@ -17,8 +17,12 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Stack;
 
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -201,6 +205,7 @@ public class ThreeWayRichTextDiff {
 	// for diffs are implemented
 	private ConflictState hasConflictingStructuralChanges() {
 		for (RichTextDiff diff : leftDiffs) {
+			Node node = diff.getChild();
 			TagNode firstParent = findParent(diff.getChild());
 			if (!firstParent.getQName().equals("body") && firstParent instanceof RTTagNode) {
 				for (RichTextDiff diff2 : rightDiffs) {
@@ -215,10 +220,142 @@ public class ThreeWayRichTextDiff {
 					}
 				}
 			}
+			// search for conflicting structural changes inside tables such
+			// as adding/removing columns in one version and adding/removing
+			// rows in the other
+			if (node instanceof TagNode && ((TagNode) node)
+							.getQName().equals("td")) {
+				
+				// td has changed -> check if this is part of a column change
+				// and if that's the case, also check that no row in the table
+				// has been changed in the right version
+				TagNode leftTable = findParentTag(node, "table");
+				if (leftTable instanceof RTTagNode
+						&& hasTableColumnChanged(leftTable)) {
+					
+					// table columnn has been changed -> check for row changes
+					// in the same table of the right version
+					for (RichTextDiff rightDiff : rightDiffs) {
+						
+						Node rightNode = rightDiff.getChild();
+						if(rightNode instanceof TagNode && ((TagNode) rightNode).getQName().equals("tr")){
+							
+							TagNode rightTable = findParentTag(rightNode, "table");
+							if (rightTable instanceof RTTagNode && ((RTTagNode)leftTable).isSameNode((RTTagNode)rightTable)) {
+								return ConflictState.CONFLICTING;
+							}
+						}
+						
+					}
+				}
+				// FIXME how should we handle malformed HTML (table rows or columns without parent table) in this case?
+			}else if(node instanceof TagNode && ((TagNode) node)
+					.getQName().equals("tr")){
+				
+				// table row has changed -> check that no table column in the
+				// parent table has been changed
+				TagNode leftTable = findParentTag(node, "table");
+				if (leftTable instanceof RTTagNode){
+					
+					for (RichTextDiff rightDiff : rightDiffs) {
+						
+						Node rightNode = rightDiff.getChild();
+						if(rightNode instanceof TagNode && ((TagNode) rightNode).getQName().equals("td")){
+							
+							TagNode rightTable = findParentTag(rightNode, "table");
+							if (rightTable instanceof RTTagNode
+									&& ((RTTagNode) leftTable)
+											.isSameNode((RTTagNode) rightTable)
+									&& hasTableColumnChanged(rightTable)) {
+								return ConflictState.CONFLICTING;
+							}
+							
+						}
+						
+					}
+					
+				}
+				// FIXME how should we handle malformed HTML (table rows or columns without parent table) in this case?
+			}
 		}
 		return ConflictState.NOT_CONFLICTING;
 	}
 	
+	/**
+	 * checks if at least one column in the given table tag has been changed
+	 * (all td tags in a column have a modification type !=
+	 * {@link ModificationType#NONE}).
+	 * 
+	 * @param parentTable
+	 *            the table to check
+	 * @return true if at least one column has been changed, false otherwise
+	 */
+	private boolean hasTableColumnChanged(TagNode parentTable) {
+		
+		int numRows = 0;
+		int colIndex = 0;
+		
+		Map<Integer, Integer> changedCellsInCol = new HashMap<Integer, Integer>();
+		
+		Stack<TagNode> iterationStack = new Stack<TagNode>();
+		iterationStack.push(parentTable);
+		
+		// iterate over the DOM-tree and count the number of rows and changed
+		// cells in each row
+		while(!iterationStack.isEmpty()){
+			TagNode node = iterationStack.pop();
+			String qName = node.getQName();
+			
+			if(qName.equals("tr")){
+				
+				numRows++;
+				colIndex = 0;
+				
+			}else if(qName.equals("td")){
+				
+				if (node instanceof RTTagNode
+						&& !((RTTagNode) node).getModification().getType()
+								.equals(ModificationType.NONE)) {
+					
+					if(changedCellsInCol.containsKey(colIndex)){
+						
+						int prevCount = changedCellsInCol.get(colIndex);
+						prevCount++;
+						changedCellsInCol.put(colIndex, prevCount);
+						
+					}else{
+						changedCellsInCol.put(colIndex, 1);
+					}
+					
+				}
+				colIndex++;
+				
+			}
+			
+			if (!qName.equals("td")) {
+				// we don't iterate deeper than the first table cell, as we
+				// don't want to count rows and cells inside other table cells
+				for(Node childNode : node){
+					
+					if(childNode instanceof TagNode){
+						iterationStack.push((TagNode)childNode);
+					}
+					
+				}
+			}
+		}
+		
+		for(Entry<Integer, Integer> column : changedCellsInCol.entrySet()){
+			
+			if(column.getValue() == numRows){
+				return true;
+			}
+			
+		}
+		
+		return false;
+	}
+
 	/**
 	 * tests if two node trees are equal by checking their qualified name,
 	 * modification type, children (and their order) and text.
@@ -271,6 +408,24 @@ public class ThreeWayRichTextDiff {
 			return child.getParent();
 		}
 		return findParent(child.getParent());
+	}
+	
+	/**
+	 * 
+	 * @param node the node to find the parent tag for
+	 * @param qName the qualified name of the parent tag to search for
+	 * @return the parent table tag or null if it does not exist
+	 */
+	private TagNode findParentTag(Node node, String qName){
+		// FIXME move this into RTNode?
+		TagNode parent = node.getParent();
+		while(!parent.getQName().equals("body")){
+			if(parent.getQName().equals(qName)){
+				return parent;
+			}
+			parent = parent.getParent();
+		}
+		return null;
 	}
 
 	private boolean isStructureNode(TagNode parent) {
