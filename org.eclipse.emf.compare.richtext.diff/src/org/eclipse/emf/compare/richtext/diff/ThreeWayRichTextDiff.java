@@ -1,6 +1,15 @@
-/**
+/*******************************************************************************
+ * Copyright (c) 2015 EclipseSource Muenchen GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  * 
- */
+ * Contributors:
+ *     Philip Langer - initial API and implementation
+ *     Alexandra Buzila
+ *     Florian Zoubek
+ *******************************************************************************/
 package org.eclipse.emf.compare.richtext.diff;
 
 import java.io.StringWriter;
@@ -8,8 +17,12 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Stack;
 
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
@@ -17,21 +30,18 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.emf.compare.richtext.diff.internal.RTNode;
+import org.eclipse.emf.compare.richtext.diff.internal.RTTagNode;
+import org.eclipse.emf.compare.richtext.diff.internal.RTTextNode;
+import org.eclipse.emf.compare.richtext.diff.internal.RichTextDiffer;
+import org.eclipse.emf.compare.richtext.diff.internal.StringOutputGenerator;
 import org.outerj.daisy.diff.html.TextNodeComparator;
 import org.outerj.daisy.diff.html.dom.Node;
-import org.outerj.daisy.diff.html.dom.SeparatingNode;
 import org.outerj.daisy.diff.html.dom.TagNode;
 import org.outerj.daisy.diff.html.dom.TextNode;
-import org.outerj.daisy.diff.html.dom.WhiteSpaceNode;
 import org.outerj.daisy.diff.html.modification.ModificationType;
 import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
-/**
- * @author Alexandra Buzila
- * @author Philip Langer <planger@eclipsesource.com>
- *
- */
 public class ThreeWayRichTextDiff {
 
 	/**
@@ -89,9 +99,9 @@ public class ThreeWayRichTextDiff {
 	/**
 	 */
 	public String getMerged() {
-		// if (merged == null) {
-		merged = computeMerged();
-		// }
+		if (merged == null) {
+			merged = computeMerged();
+		}
 		String output = getOutput(merged.getBodyNode());
 		return output;
 	}
@@ -126,9 +136,9 @@ public class ThreeWayRichTextDiff {
 	/**
 	 */
 	public boolean isConflicting() {
-		// if (ConflictState.UNKNOWN.equals(conflictState)) {
-		conflictState = computeConflictState();
-		// }
+		if (ConflictState.UNKNOWN.equals(conflictState)) {
+			conflictState = computeConflictState();
+		}
 		return ConflictState.CONFLICTING.equals(conflictState);
 	}
 
@@ -158,39 +168,20 @@ public class ThreeWayRichTextDiff {
 		return threeWayDiffs;
 	}
 
-	private RichTextDiff findOppositeDiff(TextNode child, ArrayList<RichTextDiff> leftDiffs) {
-		for (RichTextDiff diff : leftDiffs) {
-			if (diff.getChild() == null)
+	private RichTextDiff findOppositeDiff(Node node, ArrayList<RichTextDiff> searchList) {
+		for (RichTextDiff diff : searchList) {
+			if (diff.getChild() == null) {
 				continue;
-			if (diff.getChild().isSameText(child)) {
-				return diff;
 			}
+			if (!(diff.getChild() instanceof RTNode)) {
+				// FIXME should we fail in this case?
+				continue;
+			}
+			RTNode child = (RTNode) diff.getChild();
+			if (child.isSameNode(node))
+				return diff;
 		}
 		return null;
-	}
-
-	/**
-	 * Specifies whether {@code diff} is a deletion.
-	 * 
-	 * @param diff
-	 *            The difference to check.
-	 * @return <code>true</code> if it is a deletion, <code>false</code>
-	 *         otherwise.
-	 */
-	private boolean isDelete(RichTextDiff diff) {
-		return diff != null && ModificationType.REMOVED.equals(diff.getModification().getType());
-	}
-
-	/**
-	 * Specifies whether {@code diff} is a insertion.
-	 * 
-	 * @param diff
-	 *            The difference to check.
-	 * @return <code>true</code> if it is a insertion, <code>false</code>
-	 *         otherwise.
-	 */
-	private boolean isInsert(RichTextDiff diff) {
-		return diff != null && ModificationType.ADDED.equals(diff.getModification().getType());
 	}
 
 	/**
@@ -210,174 +201,202 @@ public class ThreeWayRichTextDiff {
 	}
 
 	/***/
+	// TODO update once "requires/requiredBy" and "equivalence" relationships
+	// for diffs are implemented
 	private ConflictState hasConflictingStructuralChanges() {
 		for (RichTextDiff diff : leftDiffs) {
+			Node node = diff.getChild();
 			TagNode firstParent = findParent(diff.getChild());
-			if (!firstParent.getQName().equals("body")) {
+			if (!firstParent.getQName().equals("body") && firstParent instanceof RTTagNode) {
 				for (RichTextDiff diff2 : rightDiffs) {
 					TagNode secondParent = findParent(diff2.getChild());
-					if (isSameTag(firstParent, secondParent)) {
-						if (firstParent.getNbChildren() == secondParent.getNbChildren()) {
-							boolean equal = true;
-							int i = 0;
-							while (equal && i < firstParent.getNbChildren()) {
-								Node firstChild = firstParent.getChild(i);
-								Node secondChild = secondParent.getChild(i);
-								if (!(firstChild instanceof SeparatingNode) && !(secondChild instanceof SeparatingNode)) {
-									if (firstChild instanceof TextNode)
-										equal = ((TextNode) firstChild).isSameText(secondChild);
-									else
-										equal = firstChild.equals(secondChild);
-								}
-								i++;
-							}
-							if (equal)// pseudoconflict
-								continue;
+					if (secondParent instanceof RTTagNode && ((RTTagNode)firstParent).isSameNode((RTTagNode)secondParent)) {
+						
+						if(areNodeTreesEqual((RTTagNode)firstParent, (RTTagNode)secondParent)){
+							continue;
 						}
 
 						return ConflictState.CONFLICTING;
 					}
 				}
 			}
+			// search for conflicting structural changes inside tables such
+			// as adding/removing columns in one version and adding/removing
+			// rows in the other
+			if (node instanceof TagNode && ((TagNode) node)
+							.getQName().equals("td")) {
+				
+				// td has changed -> check if this is part of a column change
+				// and if that's the case, also check that no row in the table
+				// has been changed in the right version
+				TagNode leftTable = findParentTag(node, "table");
+				if (leftTable instanceof RTTagNode
+						&& hasTableColumnChanged(leftTable)) {
+					
+					// table columnn has been changed -> check for row changes
+					// in the same table of the right version
+					for (RichTextDiff rightDiff : rightDiffs) {
+						
+						Node rightNode = rightDiff.getChild();
+						if(rightNode instanceof TagNode && ((TagNode) rightNode).getQName().equals("tr")){
+							
+							TagNode rightTable = findParentTag(rightNode, "table");
+							if (rightTable instanceof RTTagNode && ((RTTagNode)leftTable).isSameNode((RTTagNode)rightTable)) {
+								return ConflictState.CONFLICTING;
+							}
+						}
+						
+					}
+				}
+				// FIXME how should we handle malformed HTML (table rows or columns without parent table) in this case?
+			}else if(node instanceof TagNode && ((TagNode) node)
+					.getQName().equals("tr")){
+				
+				// table row has changed -> check that no table column in the
+				// parent table has been changed
+				TagNode leftTable = findParentTag(node, "table");
+				if (leftTable instanceof RTTagNode){
+					
+					for (RichTextDiff rightDiff : rightDiffs) {
+						
+						Node rightNode = rightDiff.getChild();
+						if(rightNode instanceof TagNode && ((TagNode) rightNode).getQName().equals("td")){
+							
+							TagNode rightTable = findParentTag(rightNode, "table");
+							if (rightTable instanceof RTTagNode
+									&& ((RTTagNode) leftTable)
+											.isSameNode((RTTagNode) rightTable)
+									&& hasTableColumnChanged(rightTable)) {
+								return ConflictState.CONFLICTING;
+							}
+							
+						}
+						
+					}
+					
+				}
+				// FIXME how should we handle malformed HTML (table rows or columns without parent table) in this case?
+			}
 		}
 		return ConflictState.NOT_CONFLICTING;
 	}
+	
+	/**
+	 * checks if at least one column in the given table tag has been changed
+	 * (all td tags in a column have a modification type !=
+	 * {@link ModificationType#NONE}).
+	 * 
+	 * @param parentTable
+	 *            the table to check
+	 * @return true if at least one column has been changed, false otherwise
+	 */
+	private boolean hasTableColumnChanged(TagNode parentTable) {
+		
+		int numRows = 0;
+		int colIndex = 0;
+		
+		Map<Integer, Integer> changedCellsInCol = new HashMap<Integer, Integer>();
+		
+		Stack<TagNode> iterationStack = new Stack<TagNode>();
+		iterationStack.push(parentTable);
+		
+		// iterate over the DOM-tree and count the number of rows and changed
+		// cells in each row
+		while(!iterationStack.isEmpty()){
+			TagNode node = iterationStack.pop();
+			String qName = node.getQName();
+			
+			if(qName.equals("tr")){
+				
+				numRows++;
+				colIndex = 0;
+				
+			}else if(qName.equals("td")){
+				
+				if (node instanceof RTTagNode
+						&& !((RTTagNode) node).getModification().getType()
+								.equals(ModificationType.NONE)) {
+					
+					if(changedCellsInCol.containsKey(colIndex)){
+						
+						int prevCount = changedCellsInCol.get(colIndex);
+						prevCount++;
+						changedCellsInCol.put(colIndex, prevCount);
+						
+					}else{
+						changedCellsInCol.put(colIndex, 1);
+					}
+					
+				}
+				colIndex++;
+				
+			}
+			
+			if (!qName.equals("td")) {
+				// we don't iterate deeper than the first table cell, as we
+				// don't want to count rows and cells inside other table cells
+				for(Node childNode : node){
+					
+					if(childNode instanceof TagNode){
+						iterationStack.push((TagNode)childNode);
+					}
+					
+				}
+			}
+		}
+		
+		for(Entry<Integer, Integer> column : changedCellsInCol.entrySet()){
+			
+			if(column.getValue() == numRows){
+				return true;
+			}
+			
+		}
+		
+		return false;
+	}
 
 	/**
-	 * return true if the tag nodes are located in the same position in the tree
-	 * and have the same children
+	 * tests if two node trees are equal by checking their qualified name,
+	 * modification type, children (and their order) and text.
+	 * 
+	 * @param treeRoot1
+	 *            the root {@link TagNode} of the first tree
+	 * @param treeRoot2
+	 *            the root {@link TagNode} of the second tree
+	 * @return true if the trees are equal in the sense of equal qualified names
+	 *         and equal children for {@link RTTagNode}s, as well as equal text
+	 *         for {@link RTTextNode}s, false otherwise.
 	 */
-	public static boolean isSameTag(TagNode rightParent, TagNode leftParent) {
-
-		if (rightParent == leftParent)
-			return true;
-
-		if (!rightParent.getQName().equals(leftParent.getQName()))
-			return false;
-
-		// useful??
-		double matchRatio = rightParent.getMatchRatio(leftParent);
-		if (matchRatio > 0.5)
-			return false;
-		if (matchRatio == 0)
-			return true;
-
-		// the roots are always equal (<body> node)
-		if (rightParent.getParent() == null) {
-			return (leftParent.getParent() == null);
-		}
-		// left is root, but right wasn't
-		if (leftParent.getParent() == null)
-			return false;
-
-		int rightIndexInParent = rightParent.getParent().getIndexOf(rightParent);
-		int leftIndexInParent = leftParent.getParent().getIndexOf(leftParent);
-
-		if (rightIndexInParent == leftIndexInParent) {
-
-			ArrayList<Node> leftChildren = cloneChildren(leftParent);
-			ArrayList<Node> rightChildren = cloneChildren(rightParent);
-
-			removeNewChildren(leftChildren);
-			removeNewChildren(rightChildren);
-			if (leftChildren.size() != rightChildren.size())
-				return false;
-			else
-				for (int i = 0; i < leftChildren.size(); i++) {
-					Node leftNode = leftChildren.get(i);
-					Node rightNode = rightChildren.get(i);
-					if (!leftNode.getClass().equals(rightNode.getClass()))
-						return false;
-					if (leftNode instanceof TextNode) {
-						String leftText = ((TextNode) leftNode).getText();
-						String rightText = ((TextNode) rightNode).getText();
-						if (!leftText.equals(rightText))
+	private static boolean areNodeTreesEqual(RTTagNode treeRoot1, RTTagNode treeRoot2){
+		
+		if(treeRoot1.isSameTag(treeRoot2)){
+			
+			if(treeRoot1.getChildren().size() == treeRoot2.getChildren().size()){
+				Iterator<Node> tree1ChildIt = treeRoot1.iterator();
+				Iterator<Node> tree2ChildIt = treeRoot2.iterator();
+				while(tree1ChildIt.hasNext()){
+					Node child1 = tree1ChildIt.next();
+					Node child2 = tree2ChildIt.next();
+					if(child1 instanceof TextNode && child2 instanceof TextNode){
+						if(!((TextNode)child1).isSameText(child2) || ((TextNode)child1).getModification().getType() != ((TextNode)child2).getModification().getType() ){
 							return false;
-					} else {
-						String leftTag = ((TagNode) leftNode).getQName();
-						String rightTag = ((TagNode) rightNode).getQName();
-						if (!leftTag.equals(rightTag))
+						}
+					}else if(child1 instanceof RTTagNode && child2 instanceof RTTagNode){
+						if(!areNodeTreesEqual((RTTagNode)child1, (RTTagNode)child2)){
 							return false;
+						}
+					}else{
+						if( !child1.equals(child2)){
+							return false;
+						}
 					}
-
 				}
-			return true;
-
-			/* from http://dl.acm.org/citation.cfm?doid=1030397.1030399 */
-			// findCommonNodes(leftParent, rightParent);
-			// double commonLeaves = 0;
-			// ArrayList<TextNode> rightLeaves = new ArrayList<TextNode>();
-			// getTextNodes(rightParent, rightLeaves);
-			// ArrayList<TextNode> leftLeaves = new ArrayList<TextNode>();
-			// getTextNodes(leftParent, leftLeaves);
-			// for (TextNode node : rightLeaves) {
-			// if (leftLeaves.contains(node))
-			// commonLeaves++;
-			// }
-			// return (commonLeaves / Math.max(rightLeaves.size(),
-			// leftLeaves.size())) > 0.5;
-		}
-		if (leftParent.getParent().getNbChildren() > leftIndexInParent) {
-			Node tempNodeAtSamePosition = leftParent.getParent().getChild(leftIndexInParent);
-			if (rightParent.isSimilarTag(tempNodeAtSamePosition)) {
-				return false;
+				return true;
 			}
 		}
-		return true;
-	}
-
-	private static void removeNewChildren(ArrayList<Node> children) {
-		ListIterator<Node> listIterator = children.listIterator();
-
-		while (listIterator.hasNext()) {
-			Node child = listIterator.next();
-			if (child instanceof TextNode) {
-				if (((TextNode) child).getModification().getType() == ModificationType.ADDED) {
-					listIterator.remove();
-				}
-				// FIXME - whitespaces are removed for now, because DaisyDiff
-				// currently does not correctly handle them (multiple
-				// whitespaces are ignored while parsing, whitespace
-				// modifications are not correctly assigned - the whitespace
-				// before a currently inserted node is not marked as new if the
-				// word is preceded by existing text)
-				else if (child instanceof WhiteSpaceNode) {
-					listIterator.remove();
-				}
-			} else if (allNewChildren((TagNode) child)) {
-				listIterator.remove();
-			}
-		}
-	}
-
-	private static boolean allNewChildren(TagNode node) {
-		ArrayList<TextNode> textNodes = new ArrayList<TextNode>();
-		getTextNodes(node, textNodes);
-		if (textNodes.isEmpty())
-			return false;
-		for (TextNode textNode : textNodes) {
-			if (textNode.getModification().getType() != ModificationType.ADDED)
-				return false;
-		}
-		return true;
-	}
-
-	private static ArrayList<Node> cloneChildren(TagNode parent) {
-		ArrayList<Node> children = new ArrayList<Node>();
-		for (Node child : parent) {
-			children.add(child);
-		}
-		return children;
-	}
-
-	private static ArrayList<TextNode> getTextNodes(TagNode parent, ArrayList<TextNode> textNodes) {
-		for (int i = 0; i < parent.getNbChildren(); i++) {
-			if (parent.getChild(i) instanceof TagNode)
-				getTextNodes((TagNode) parent.getChild(i), textNodes);
-			else
-				textNodes.add((TextNode) parent.getChild(i));
-		}
-		return null;
+		
+		return false;
 	}
 
 	/**
@@ -385,9 +404,28 @@ public class ThreeWayRichTextDiff {
 	 *         cell, paragraph, body node)
 	 */
 	private TagNode findParent(Node child) {
-		if (isStructureNode(child.getParent()))
+		if (isStructureNode(child.getParent())) {
 			return child.getParent();
+		}
 		return findParent(child.getParent());
+	}
+	
+	/**
+	 * 
+	 * @param node the node to find the parent tag for
+	 * @param qName the qualified name of the parent tag to search for
+	 * @return the parent table tag or null if it does not exist
+	 */
+	private TagNode findParentTag(Node node, String qName){
+		// FIXME move this into RTNode?
+		TagNode parent = node.getParent();
+		while(!parent.getQName().equals("body")){
+			if(parent.getQName().equals(qName)){
+				return parent;
+			}
+			parent = parent.getParent();
+		}
+		return null;
 	}
 
 	private boolean isStructureNode(TagNode parent) {
@@ -400,58 +438,113 @@ public class ThreeWayRichTextDiff {
 	 * @return The result of merging all {@link #threeWayDifferences}.
 	 */
 	private TextNodeComparator computeMerged() {
+		/*
+		 * The list of nodes that need to be removed. The nodes that need to be
+		 * removed will remain as placeholders in their parent's tree, until all
+		 * the diffs are merged, enabling us to match nodes based on their index
+		 * in the children's list. The node removal operation will be performed
+		 * at the end of the merge operation.
+		 */
+		List<Node> nodesToRemove = new ArrayList<Node>();
 		for (RichTextThreeWayDiff threeWayDiff : threeWayDifferences) {
+
+			// TODO - handle conflicts
+
 			// TODO The code currently merges rtl. Add logic for ltr merge.
 			RichTextDiff rightDiff = threeWayDiff.getRightDiff();
 			RichTextDiff leftDiff = threeWayDiff.getLeftDiff();
+
 			if (rightDiff == null) {
 				continue;
 			}
 			TagNode root = leftComparator.getBodyNode();
-			TextNode rightClone = (TextNode) rightDiff.getChild().copyTree();
 			TagNode rightParent = rightDiff.getChild().getParent();
-			TagNode leftParent = findTagNode(root, rightParent);
-			if (rightDiff.getModification().getType() == ModificationType.ADDED) {
-				int index = findInsertionIndex(leftParent, rightDiff.getChild());
-				addNode(leftParent, rightClone, index);
-			} else if (rightDiff.getModification().getType() == ModificationType.REMOVED) {
-				removeNode(leftParent, rightClone);
-			} else if (rightDiff.getModification().getType() == ModificationType.CHANGED) {
-				changeNode(leftParent, rightClone);
+			TagNode leftParent = (TagNode) findNode(root, rightParent);
+			if (!(leftParent instanceof RTNode)) {
+				// XXX - return?
+				continue;
+			}
+
+			switch (rightDiff.getModification().getType()) {
+			case ADDED: {
+				addNode((RTNode) leftParent, rightDiff.getChild());
+				break;
+			}
+			case REMOVED: {
+				Node node = findNode(leftParent, rightDiff.getChild());
+				if (node != null) {
+					nodesToRemove.add(node);
+				}
+				break;
+			}
+			case CHANGED: {
+				changeNode(leftParent, rightDiff.getChild());
+				break;
+			}
+			default:
+				break;
 			}
 		}
+		removeNodes(leftComparator.getBodyNode(), nodesToRemove);
 		return leftComparator;
 	}
 
-	private TagNode findTagNode(TagNode root, TagNode rightParent) {
+	private void removeNodes(TagNode root, List<Node> nodesToRemove) {
+
+		getDeletedNodes(root, nodesToRemove);
+
+		for (Node node : nodesToRemove) {
+			deleteNodeFromParentList(node);
+		}
+
+	}
+
+	private void getDeletedNodes(TagNode root, List<Node> nodesToRemove) {
 		for (Node node : root) {
 			if (node instanceof TagNode) {
-				if (isSameTag((TagNode) node, rightParent))
-					return ((TagNode) node);
+				getDeletedNodes(((TagNode) node), nodesToRemove);
+			} else {
+				TextNode textNode = (TextNode) node;
+				if (textNode.getModification().getType() == ModificationType.REMOVED) {
+					nodesToRemove.add(node);
+				}
+			}
+		}
+	}
+
+	private void deleteNodeFromParentList(Node node) {
+		if (node == null) {
+			return;
+		}
+		TagNode directParent = node.getParent();
+		if (directParent == null) {
+			return;
+		}
+		node.setParent(null);
+		List<Node> children = getChildren(directParent);
+		children.remove(node);
+	}
+
+	/**
+	 * @param searchNode
+	 *            the {@link TagNode} that needs to be found
+	 * @param root
+	 *            the root of the tree in which the search will be performed
+	 * @return the match of the {@link TagNode} {@code searchNode} in the tree
+	 *         with the given root
+	 */
+	private Node findNode(Iterable<Node> root, Node searchNode) {
+		for (Node node : root) {
+			if (node instanceof RTNode && ((RTNode) node).isSameNode(searchNode)) {
+				return node;
 			}
 		}
 		return null;
 	}
 
-	private int findInsertionIndex(TagNode leftParent, TextNode child) {
-		int indexOf = child.getParent().getIndexOf(child);
-		return indexOf;
-	}
-
 	private void changeNode(TagNode leftParent, Node rightClone) {
 		// TODO Auto-generated method stub
 
-	}
-
-	private void removeNode(TagNode parent, Node node) {
-		Node toRemove;
-		if (node instanceof TagNode)
-			toRemove = findTagNode(parent, (TagNode) node);
-		toRemove = findTextNode(parent, (TextNode) node);
-		TagNode directParent = toRemove.getParent();
-		toRemove.setParent(null);
-		List<Node> children = getChildren(directParent);
-		children.remove(toRemove);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -476,25 +569,26 @@ public class ThreeWayRichTextDiff {
 		return null;
 	}
 
-	private Node findTextNode(TagNode parent, TextNode searchNode) {
-		for (Node node : parent) {
-			if (node instanceof TagNode)
-				findTextNode((TagNode) node, searchNode);
-			if (((TextNode) node).getText().equals(searchNode.getText())) {
-				//FIXME how do we handle repeating words? check position of node in the parent's children list
-				return node;
-			}
-		}
-		return null;
-	}
+	private void addNode(RTNode parent, Node child) {
+		if (!(parent instanceof TagNode) || !(child.getParent() instanceof RTNode))
+			return;
 
-	private void addNode(TagNode parent, TextNode child, int index) {
-		child.setParent(parent);
-		int nbChildren = parent.getNbChildren();
-		if (index > nbChildren)
-			parent.addChild(nbChildren, child);
-		else
-			parent.addChild(index, child);
+		TagNode tagParent = (TagNode) parent;
+		int index = child.getParent().getIndexOf(child);
+
+		Node clone = child.copyTree();
+		clone.setParent(tagParent);
+
+		/*
+		 * the parent in which we will insert the node can't have modified
+		 * children, otherwise a conflict would have been raised
+		 */
+		int nbChildren = tagParent.getNbChildren();
+		if (index > nbChildren) {
+			tagParent.addChild(nbChildren, clone);
+		} else {
+			tagParent.addChild(index, clone);
+		}
 
 	}
 
