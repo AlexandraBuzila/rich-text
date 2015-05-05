@@ -47,10 +47,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getChangeDifferentParagraphRight();
 		String left = inputData.getChangeDifferentParagraphLeft();
 		String result = inputData.getChangeDifferentParagraphResult();
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertTrue(result.equals(merged));
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase P1.2 - Changes in different paragraphs with two deletions  */
@@ -77,10 +77,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getChangeDifferentParagraphDeletionsRight();
 		String left = inputData.getChangeDifferentParagraphDeletionsLeft();
 		String result = inputData.getChangeDifferentParagraphDeletionsResult();
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertTrue(result.equals(merged));
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase P1.3 - Changes in different paragraphs with one addition (left) and deletion (right)  */
@@ -107,10 +107,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getChangeDifferentParagraphAdditionDeletionRight();
 		String left = inputData.getChangeDifferentParagraphAdditionDeletionLeft();
 		String result = inputData.getChangeDifferentParagraphAdditionDeletionResult();
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* Testcase P2.1 - text additions in same paragraph */
@@ -152,10 +152,10 @@ public class ThreeWayRichTextDiffTest {
 		String left = inputData.getInsertParagraphDifferentLocationLeft();
 		String right = inputData.getInsertParagraphDifferentLocationRight();
 		String result = inputData.getInsertParagraphDifferentLocationResult();
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase P3.2 - Insert paragraphs at same location */
@@ -197,10 +197,10 @@ public class ThreeWayRichTextDiffTest {
 		String left = inputData.getInsertParagraphSameLocationPseudoconflictLeft();
 		String right = inputData.getInsertParagraphSameLocationPseudoconflictRight();
 		String result = inputData.getInsertParagraphSameLocationPseudoconflictResult();
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase P3.4 - Left: paragraph deleted - Right: text additions in deleted paragraph */
@@ -279,10 +279,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getChangeInTableSameCellRight();
 		String result = inputData.getChangeInTableSameCellResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* Testcase T1.2 - Deletions in different paragraphs within a table cell */
@@ -310,10 +310,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getDeletionsInTableSameCellRight();
 		String result = inputData.getDeletionsInTableSameCellResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* Testcase T1.3 - Addition (left) & deletion (right) in different paragraphs within a table cell */
@@ -341,10 +341,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getAdditionDeletionInTableSameCellRight();
 		String result = inputData.getAdditionDeletionInTableSameCellResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase T2.1 - Insertion of new paragraphs at different locations within a table cell */
@@ -372,10 +372,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getInsertParagraphAtDifferentLocationInSameTableCellRight();
 		String result = inputData.getInsertParagraphAtDifferentLocationInSameTableCellResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* Testcase T2.2 - Insertion of new paragraphs at the same location within a table cell */
@@ -418,10 +418,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictRight();
 		String result = inputData.getInsertParagraphAtSameLocationInSameTableCellPseudoconflictResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase T2.4 - Text addition in deleted paragraph */
@@ -479,10 +479,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getAddRemoveTableColumnRight();
 		String result = inputData.getAddRemoveTableColumnResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* Testcase T3.2 - Insert row (right), remove row (left) */
@@ -510,10 +510,10 @@ public class ThreeWayRichTextDiffTest {
 		String right = inputData.getAddRemoveTableRowRight();
 		String result = inputData.getAddRemoveTableRowResult();
 		
-		result = result.replaceAll("\n", "").replaceAll("\r", "");
+		result = normalizeHtml(result);
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		String merged = diff.getMerged();
-		Assert.assertEquals(result, merged);
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* Testcase T3.3 - Insert column (left), remove row (right) */
@@ -529,6 +529,106 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/**
+	 * normalizes html code using the following operations:
+	 * 
+	 * <ul>
+	 * <li>removes whitespaces and tabs before and after tags</li>
+	 * <li>removes line breaks</li>
+	 * <li>adds line breaks between tags and between content and tags</li>
+	 * <li>transform tag names and attribute names to lower case</li>
+	 * </ul>
+	 * 
+	 * @param html
+	 *            the html code to normalize
+	 * @return the normalized html code
+	 */
+	private String normalizeHtml(String html){
+		StringBuilder cleanedHtml = new StringBuilder(html.length());
+		
+		boolean inTag = false;
+		boolean isTagPredecessor = false;
+		boolean inAttribute = false;
+		
+		for(int currentCharIndex = 0; currentCharIndex < html.length(); currentCharIndex++){
+			char currentChar = html.charAt(currentCharIndex);
+			
+			if(currentChar == '<'){
+				// tag opened
+				inTag = true;
+				// remove whitespaces and tabs before a tag
+				cleanedHtml = removeTrailingChars(cleanedHtml, new char[]{' ','\t'});
+				// add line break before the tag if necessary
+				if(cleanedHtml.length() > 0 && cleanedHtml.charAt(cleanedHtml.length()-1) != '\n'){
+					cleanedHtml.append('\n');
+				}					
+			}else if(currentChar == '>'){
+				// tag closed
+				inTag = false;
+				inAttribute = false; // just in case the html code is malformed
+				isTagPredecessor = true;
+			}else if (currentChar == '/' && html.charAt(currentCharIndex+1) == '>' ){
+				// void tag
+				cleanedHtml = removeTrailingChars(cleanedHtml, new char[]{' ','\t'});
+			}else if(currentChar == '"' && inTag){
+				// attribute value started/ended
+				inAttribute = !inAttribute;
+			}
+			
+			if(currentChar != '\n' && currentChar != '\r'){
+				if(inTag && !inAttribute){
+					// transform uppercase characters which are not attribute values in tags to lower case 
+					cleanedHtml.append(Character.toLowerCase(currentChar));
+				}else if(isTagPredecessor){
+					// ignore whitespaces and tabs after the tag
+					if(currentChar != ' ' && currentChar != '\t'){
+						cleanedHtml.append(currentChar);
+						isTagPredecessor = false;
+					}
+				}else{
+					cleanedHtml.append(currentChar);
+				}
+				
+				if(currentChar == '>'){
+					// add line break after tag
+					cleanedHtml.append('\n');
+				}
+			}
+		}
+		
+		return cleanedHtml.toString();
+	}
+	
+	/**
+	 * removes all trailing characters contained in the given character array
+	 * from the given {@link StringBuilder} instance until a character is found
+	 * which is not present in given character array.
+	 * 
+	 * @param builder
+	 *            the {@link StringBuilder} to modify
+	 * @param chars
+	 *            the characters to delete
+	 * @return the given (and modified) {@link StringBuilder} instance
+	 */
+	private static StringBuilder removeTrailingChars(StringBuilder builder, char[] chars){
+		
+		for(int endIndex = builder.length()-1; endIndex >= 0; endIndex--){
+			char predecessor = builder.charAt(endIndex);
+			for(char character : chars){
+				if(predecessor == character ){
+					builder.deleteCharAt(endIndex);
+					break;
+				}
+			}
+
+			// the length must be bigger than endIndex if no character has been deleted 
+			if(builder.length() > endIndex){
+				break;
+			}
+		}
+		return builder;
 	}
 
 }
