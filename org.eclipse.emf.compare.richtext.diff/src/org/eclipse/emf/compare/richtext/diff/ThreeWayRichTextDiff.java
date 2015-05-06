@@ -30,6 +30,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.emf.compare.richtext.diff.internal.RTBodyNode;
 import org.eclipse.emf.compare.richtext.diff.internal.RTNode;
 import org.eclipse.emf.compare.richtext.diff.internal.RTTagNode;
 import org.eclipse.emf.compare.richtext.diff.internal.RTTextNode;
@@ -207,7 +208,7 @@ public class ThreeWayRichTextDiff {
 		for (RichTextDiff diff : leftDiffs) {
 			Node node = diff.getChild();
 			TagNode firstParent = findParent(diff.getChild());
-			if (!firstParent.getQName().equals("body") && firstParent instanceof RTTagNode) {
+			if (firstParent instanceof RTTagNode || firstParent instanceof RTBodyNode) {
 				for (RichTextDiff diff2 : rightDiffs) {
 					TagNode secondParent = findParent(diff2.getChild());
 					if (secondParent instanceof RTTagNode && ((RTTagNode)firstParent).isSameNode((RTTagNode)secondParent)) {
@@ -217,6 +218,36 @@ public class ThreeWayRichTextDiff {
 						}
 
 						return ConflictState.CONFLICTING;
+					} else if (node == firstParent
+							&& secondParent == diff2.getChild()
+							&& diff.getModification().getType() == ModificationType.ADDED
+							&& diff2.getModification().getType() == ModificationType.ADDED) {
+						// although the tags are not equal, they might be added
+						// on the same location within their parent, which is
+						// also a conflict
+						
+						// first retrieve the parents
+						TagNode realLeftParent = node.getParent();
+						TagNode realRightParent = diff2.getChild().getParent();
+						if (realLeftParent instanceof RTTagNode
+								&& realRightParent instanceof RTTagNode) {
+							RTTagNode leftRTParent = (RTTagNode) realLeftParent;
+							RTTagNode rightRTParent = (RTTagNode) realRightParent;
+							// if the parents are not the same there is no need
+							// to check the insertion index
+							if (leftRTParent.isSameNode(rightRTParent)
+									&& countPreceedingSiblingsWithoutInsertions(node) == countPreceedingSiblingsWithoutInsertions(diff2
+											.getChild())) {
+								return ConflictState.CONFLICTING;
+								
+							}
+						}else if (realLeftParent instanceof RTBodyNode
+								&& realRightParent instanceof RTBodyNode
+								&& countPreceedingSiblingsWithoutInsertions(node) == countPreceedingSiblingsWithoutInsertions(diff2
+										.getChild())) {
+							// body nodes are always equal, so we do not need to check the equality
+							return ConflictState.CONFLICTING;
+						}
 					}
 				}
 			}
@@ -279,6 +310,39 @@ public class ThreeWayRichTextDiff {
 			}
 		}
 		return ConflictState.NOT_CONFLICTING;
+	}
+	
+	/**
+	 * counts the number of preceeding siblings that have not been added.
+	 * 
+	 * @param node
+	 *            the node whose siblings should be counted
+	 * @return the number of preceeding siblings that have not been added.
+	 */
+	private int countPreceedingSiblingsWithoutInsertions( Node node ){
+		int counter = 0;
+		
+		TagNode parent = node.getParent();
+		
+		if(parent != null){
+			for(Node sibling : parent){
+				if(sibling == node){
+					break;
+				}
+				ModificationType type = ModificationType.NONE;
+				if(sibling instanceof RTTagNode){
+					type = ((RTTagNode) sibling).getModification().getType();
+				}else if(sibling instanceof TextNode){
+					type = ((TextNode) sibling).getModification().getType();
+				}
+				
+				if(type != ModificationType.ADDED){
+					counter++;
+				}
+			}
+		}
+		
+		return counter;
 	}
 	
 	/**
@@ -400,12 +464,12 @@ public class ThreeWayRichTextDiff {
 	}
 
 	/**
-	 * @return the first parent of the node, that is a structure node (table
-	 *         cell, paragraph, body node)
+	 * @return the first parent of the node or the node itself, that is a
+	 *         structure node (table cell, paragraph, body node)
 	 */
 	private TagNode findParent(Node child) {
-		if (isStructureNode(child.getParent())) {
-			return child.getParent();
+		if(child instanceof TagNode && isStructureNode((TagNode) child)){
+			return (TagNode)child;
 		}
 		return findParent(child.getParent());
 	}
