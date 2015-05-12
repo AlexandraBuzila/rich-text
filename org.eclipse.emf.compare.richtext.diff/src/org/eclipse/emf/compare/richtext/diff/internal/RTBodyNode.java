@@ -11,10 +11,13 @@
 
 package org.eclipse.emf.compare.richtext.diff.internal;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.outerj.daisy.diff.html.dom.BodyNode;
 import org.outerj.daisy.diff.html.dom.Node;
+import org.outerj.daisy.diff.html.dom.TagNode;
 import org.outerj.daisy.diff.html.dom.TextNode;
 import org.outerj.daisy.diff.html.modification.Modification;
 import org.outerj.daisy.diff.html.modification.ModificationType;
@@ -22,10 +25,13 @@ import org.outerj.daisy.diff.html.modification.ModificationType;
 public class RTBodyNode extends BodyNode implements RTNode {
 
 	private Modification modification;
+	/** the list of children nodes retrieved from the superclass */
+	private List<Node> _children;
 	private ArrayList<Node> childrenNoInsertions;
 
 	public RTBodyNode() {
 		super();
+		this._children = getChildrenPrivate();
 		// body nodes can't be modified
 		modification = new Modification(ModificationType.NONE, ModificationType.NONE);
 	}
@@ -86,6 +92,35 @@ public class RTBodyNode extends BodyNode implements RTNode {
 			return ((TextNode) node).getModification().getType() == ModificationType.ADDED;
 		}
 		return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<Node> getChildrenPrivate() {
+		try {
+			Field field = TagNode.class.getDeclaredField("children");
+			field.setAccessible(true);
+			return (List<Node>) field.get(this);
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * @return the _children
+	 */
+	public List<Node> getChildren() {
+		return _children;
 	}
 
 }

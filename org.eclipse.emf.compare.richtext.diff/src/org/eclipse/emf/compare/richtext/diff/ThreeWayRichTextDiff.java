@@ -40,6 +40,7 @@ import org.outerj.daisy.diff.html.TextNodeComparator;
 import org.outerj.daisy.diff.html.dom.Node;
 import org.outerj.daisy.diff.html.dom.TagNode;
 import org.outerj.daisy.diff.html.dom.TextNode;
+import org.outerj.daisy.diff.html.modification.Modification;
 import org.outerj.daisy.diff.html.modification.ModificationType;
 import org.xml.sax.SAXException;
 
@@ -510,15 +511,20 @@ public class ThreeWayRichTextDiff {
 		 * at the end of the merge operation.
 		 */
 		List<Node> nodesToRemove = new ArrayList<Node>();
+		/*
+		 * The list of added nodes that have been merged during an addNode()
+		 * call and so do not need to be handled any more.
+		 */
+		List<Node> addedNodes = new ArrayList<Node>();
 		for (RichTextThreeWayDiff threeWayDiff : threeWayDifferences) {
-
+			
 			// TODO - handle conflicts
 
 			// TODO The code currently merges rtl. Add logic for ltr merge.
 			RichTextDiff rightDiff = threeWayDiff.getRightDiff();
 			RichTextDiff leftDiff = threeWayDiff.getLeftDiff();
 
-			if (rightDiff == null) {
+			if (rightDiff == null || addedNodes.contains(rightDiff.getChild())) {
 				continue;
 			}
 			TagNode root = leftComparator.getBodyNode();
@@ -528,10 +534,14 @@ public class ThreeWayRichTextDiff {
 				// XXX - return?
 				continue;
 			}
+			
+			if(leftDiff != null && leftDiff.getModification().getType() == ModificationType.ADDED){
+				continue;
+			}
 
 			switch (rightDiff.getModification().getType()) {
 			case ADDED: {
-				addNode((RTNode) leftParent, rightDiff.getChild());
+				addNode((RTNode) leftParent, rightDiff.getChild(), addedNodes);
 				break;
 			}
 			case REMOVED: {
@@ -597,10 +607,16 @@ public class ThreeWayRichTextDiff {
 	 * @return the match of the {@link TagNode} {@code searchNode} in the tree
 	 *         with the given root
 	 */
-	private Node findNode(Iterable<Node> root, Node searchNode) {
-		for (Node node : root) {
-			if (node instanceof RTNode && ((RTNode) node).isSameNode(searchNode)) {
-				return node;
+	private Node findNode(Node root, Node searchNode) {
+		if(root instanceof RTNode && ((RTNode) root).isSameNode(searchNode)){
+			return root;
+		}
+		if(root instanceof TagNode){
+			for (Node childNode : (TagNode)root) {
+				Node node = findNode(childNode, searchNode);
+				if(node != null){
+					return node;
+				}
 			}
 		}
 		return null;
@@ -633,27 +649,192 @@ public class ThreeWayRichTextDiff {
 		return null;
 	}
 
-	private void addNode(RTNode parent, Node child) {
-		if (!(parent instanceof TagNode) || !(child.getParent() instanceof RTNode))
+	/**
+	 * adds a node of one version to the given new parent. This method requires
+	 * that any preceding sibling with the {@link ModificationType#ADDED} of the
+	 * given node must have been added to the new parent before adding the given
+	 * node.
+	 * 
+	 * @param newParent
+	 * @param child
+	 * @param resolvedNodes
+	 */
+	private void addNode(RTNode newParent, Node child, List<Node> resolvedNodes) {
+		if (!(newParent instanceof TagNode) || !(child.getParent() instanceof RTNode))
 			return;
 
-		TagNode tagParent = (TagNode) parent;
-		int index = child.getParent().getIndexOf(child);
+		TagNode newParentTag = (TagNode) newParent;
+		TagNode oldParent = child.getParent();
+		// search for the first preceding sibling that is not an addition
+		RTNode sibling = getFirstPrecedingSiblingByModificationType(
+				child, ModificationType.CHANGED, ModificationType.NONE,
+				ModificationType.REMOVED);
 
-		Node clone = child.copyTree();
-		clone.setParent(tagParent);
-
-		/*
-		 * the parent in which we will insert the node can't have modified
-		 * children, otherwise a conflict would have been raised
-		 */
-		int nbChildren = tagParent.getNbChildren();
-		if (index > nbChildren) {
-			tagParent.addChild(nbChildren, clone);
-		} else {
-			tagParent.addChild(index, clone);
+		int index = 0;
+		
+		if(sibling != null){
+			// find the corresponding node to the sibling in the parent
+			List<Node> oldSiblingsWithoutInsertions = null;
+			List<Node> newSiblingsWithoutInsertions = null;
+			List<Node> newSiblings = null;
+			
+			if(oldParent instanceof RTTagNode){
+				oldSiblingsWithoutInsertions = ((RTTagNode) oldParent).getListOfChildrenWithoutInsertions();
+			}else if(oldParent instanceof RTBodyNode){
+				oldSiblingsWithoutInsertions = ((RTBodyNode) oldParent).getListOfChildrenWithoutInsertions();
+			}
+			
+			if(newParent instanceof RTTagNode){
+				newSiblings = ((RTTagNode) newParent).getChildren();
+				newSiblingsWithoutInsertions = newParent.getListOfChildrenWithoutInsertions();
+			}else if(newParent instanceof RTBodyNode){
+				newSiblings = ((RTBodyNode) newParent).getChildren();
+				newSiblingsWithoutInsertions = newParent.getListOfChildrenWithoutInsertions();
+			}
+			
+			if(oldSiblingsWithoutInsertions != null && newSiblingsWithoutInsertions != null && newSiblings != null){
+				Node node = newSiblingsWithoutInsertions.get(oldSiblingsWithoutInsertions.indexOf(sibling));
+				/*
+				 * the insertion index is the index of the sibling in the new
+				 * parent plus the number of added nodes between the sibling and
+				 * the node to add, plus one. This is necessary because we need
+				 * to keep the order of the added elements the same. However the
+				 * current approach requires that added preceding sibling must
+				 * have been merged before the node can be inserted.
+				 */
+				index = newSiblings.indexOf(node)
+						+ (countNodesBetween((Node) sibling, child,
+								ModificationType.ADDED)) + 1;
+			}else{
+				// We cannot determine the insertion index in this case
+				return;
+			}
 		}
 
+		Node clone = child.copyTree();
+		clone.setParent(newParentTag);
+		
+		/**
+		 * we copy the complete tree, so we also merge child nodes - we must
+		 * ignore them later so that the merge is only performed once. Therefore
+		 * we have to remember all added child nodes.
+		 */
+		collectNodesByModificationType(child, resolvedNodes, ModificationType.ADDED);
+
+		int nbChildren = newParentTag.getNbChildren();
+		if (index > nbChildren) {
+			newParentTag.addChild(nbChildren, clone);
+		} else {
+			newParentTag.addChild(index, clone);
+		}
+
+	}
+	
+	/**
+	 * Counts the number of nodes with the given {@link ModificationType}s
+	 * between the given nodes (exclusive).
+	 * 
+	 * @param firstNode
+	 * @param secondNode
+	 * @param modificationTypes
+	 * @return the number of node with the given {@link ModificationType}s
+	 *         between the given nodes
+	 */
+	private int countNodesBetween(Node firstNode, Node secondNode, ModificationType... modificationTypes ){
+		int counter = 0;
+		boolean inBetween = false;
+		TagNode parent = firstNode.getParent();
+		for(Node child : parent){
+			if(child == firstNode){
+				inBetween = true;
+			}else if(child == secondNode){
+				break;
+			}else if(inBetween){
+				if(isModified(child, modificationTypes)){
+					counter++;
+				}
+			}
+		}
+		return counter;
+	}
+	
+	/**
+	 * collects all nodes in the given node hierarchy with the given
+	 * {@link ModificationType}s in the given list.
+	 * 
+	 * @param node
+	 *            the root node of the node hierarchy
+	 * @param resolvedNodes
+	 *            the list used to store the nodes.
+	 * @param modificationTypes
+	 *            the modification types of the nodes to collect
+	 */
+	private void collectNodesByModificationType(Node node, List<Node> resolvedNodes, ModificationType... modificationTypes){
+		if(isModified(node, modificationTypes)){
+			resolvedNodes.add(node);
+		}
+		if(node instanceof TagNode){
+			for(Node child : (TagNode) node){
+				collectNodesByModificationType(child, resolvedNodes, modificationTypes);
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param node
+	 *            the node to check
+	 * @param modificationTypes
+	 *            the modification types to check
+	 * @return true if the given node has a {@link Modification} with an
+	 *         {@link ModificationType} equal to one of the given
+	 *         {@link ModificationType}s, false otherwise
+	 */
+	private boolean isModified(Node node, ModificationType... modificationTypes){
+		ModificationType type = null;
+		if(node instanceof RTNode){
+			type = ((RTNode) node).getModification().getType();
+		}else if(node instanceof TextNode){
+			type = ((TextNode) node).getModification().getType();
+		}
+		if(type != null){
+			for(ModificationType modType : modificationTypes){
+				if(modType == type){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * finds the first preceding sibling which has a {@link Modification} with
+	 * an {@link ModificationType} equal to one of the given
+	 * {@link ModificationType}s.
+	 * 
+	 * @param node
+	 *            the node used to determine the sibling
+	 * @param modificationTypes
+	 *            the {@link ModificationType}s to check
+	 * @return the first preceding sibling with one of the given
+	 *         {@link ModificationType}s or null, if none exists.
+	 */
+	private RTNode getFirstPrecedingSiblingByModificationType(Node node, ModificationType... modificationTypes){
+		RTNode sibling = null;
+		TagNode parent = node.getParent();
+		for(Node child : parent){
+			if(child == node){
+				break;
+			}
+			if(child instanceof RTNode){
+				for(ModificationType modificationType : modificationTypes){
+					if(((RTNode) child).getModification().getType() == modificationType){
+						sibling = (RTNode)child;
+					}
+				}
+			}
+		}
+		return sibling;
 	}
 
 }
