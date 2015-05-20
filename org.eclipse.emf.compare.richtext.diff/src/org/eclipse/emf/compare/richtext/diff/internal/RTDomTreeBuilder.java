@@ -149,6 +149,11 @@ public class RTDomTreeBuilder extends DefaultHandler implements DomTree {
 			if (isSeparatingTag(currentParent)) {
 				addSeparatorNode();
 			}
+			if (currentParent instanceof RTTagNode
+					&& ((RTTagNode) currentParent).getChildren().isEmpty()) {
+				RTEmptyTextNode emptyTextNode = new RTEmptyTextNode(currentParent);
+				textNodes.add(emptyTextNode);
+			}
 			currentParent = currentParent.getParent();
 			whiteSpaceBeforeThis = false;
 		}

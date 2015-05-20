@@ -147,6 +147,7 @@ public class RichTextDiffer {
 				// all remaining child nodes must be present in the left version
 				assert(leftChildrenIt.hasNext());
 				traversalState.skipOrMarkRemainingNodeAs(ModificationType.REMOVED);
+				break;
 			}
 			if (currentAnnotatedChild instanceof RTTagNode) {
 				RTTagNode annotatedChildRT = (RTTagNode) currentAnnotatedChild;
@@ -175,13 +176,18 @@ public class RichTextDiffer {
 									traversalState.markCurrentTagAndMoveOn(ModificationType.REMOVED);
 								}
 							} else {
+								
 								// not present in left but present in right version - Tag has been added
 								assert(annotatedChildRT.isSameTag(rightChildRT));								
 								traversalState.markCurrentTagAndMoveOn(ModificationType.ADDED);
 							}
 						} else if (childModificationType == ModificationType.ADDED) {
+							
 							// All children have been added, so the tag has either been added or stayed the same
-							if( annotatedChildRT.isSameTag(leftChildRT) && leftChildRT.getChildren().isEmpty() ){
+							if (annotatedChildRT.isSameTag(leftChildRT)
+									&& (leftChildRT.getChildren().isEmpty() || (leftChildRT
+											.getChildren().size() == 1 && leftChildRT
+											.getChildren().get(0) instanceof RTEmptyTextNode))) {
 								// if the same tag exists in the left version it must not have any children, as all children have been added 
 								// Tag has stayed the same
 								traversalState.skipAlreadyMarkedNode();
@@ -194,7 +200,10 @@ public class RichTextDiffer {
 							}
 						} else if (childModificationType == ModificationType.REMOVED) {
 							// All children have been changed, so the tag has either been removed or stayed the same
-							if( annotatedChildRT.isSameTag(rightChildRT) && rightChildRT.getChildren().isEmpty()){
+							if (annotatedChildRT.isSameTag(rightChildRT)
+									&& (rightChildRT.getChildren().isEmpty() || (rightChildRT
+											.getChildren().size() == 1 && rightChildRT
+											.getChildren().get(0) instanceof RTEmptyTextNode))) {
 								// if the same tag exists in the right version it must not have any children, as all children have been removed 
 								// Tag has stayed the same
 								traversalState.skipAlreadyMarkedNode();
@@ -252,6 +261,25 @@ public class RichTextDiffer {
 		}
 		
 		return traversalState.getCommonModificationType();
+	}
+	
+	/**
+	 * mark all tags (inclusive root node) within the node tree described by the
+	 * given root node with the given modification type.
+	 * 
+	 * @param node
+	 *            the root node of the node tree
+	 * @param modificationType
+	 */
+	private static void markNodeTreeAsModified(Node node, ModificationType modificationType){
+		if(node instanceof RTTagNode){
+			((RTTagNode) node).setModification(new Modification(modificationType, modificationType));
+		}// leave TextNodes as is, because DaisyDiff already marked them
+		if(node instanceof TagNode){
+			for(Node child : (TagNode)node){
+				markNodeTreeAsModified(child, modificationType);
+			}
+		}
 	}
 	
 	/**
@@ -537,7 +565,7 @@ public class RichTextDiffer {
 		/**
 		 * marks all remaining Tag nodes in the annotated level version with the
 		 * given {@link ModificationType} and skips all other nodes while
-		 * recoding the common {@link ModificationType}.
+		 * recording the common {@link ModificationType}.
 		 * 
 		 * @param modificationType
 		 */
@@ -545,10 +573,11 @@ public class RichTextDiffer {
 			while(currentAnnotatedNode != null){
 				if(currentAnnotatedNode instanceof RTTagNode){
 					markCurrentTagAs(modificationType);
+					markNodeTreeAsModified(getCurrentAnnotatedNode(), modificationType);
+					moveOn(modificationType);
 				}else{
 					skipAlreadyMarkedNode();
 				}
-				moveOnAnnotated();
 			}
 		}
 		
@@ -617,7 +646,7 @@ public class RichTextDiffer {
 				getDiffs(diffs, (TagNode) child);
 			} else
 			/* TextNodes are leaves */
-			if (child instanceof RTTextNode) {
+			if (child instanceof RTTextNode && !(child instanceof RTEmptyTextNode)) {
 				RTTextNode textChild = (RTTextNode) child;
 				Modification mod = textChild.getModification();
 				if (mod.getType() != ModificationType.NONE) {

@@ -14,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -308,6 +307,78 @@ public class RichTextDifferTest {
 
 		assertDiffListEqual(diffs, expectedDiffs);
 	}
+	
+	/**
+	 * Testcase TAG 2.3 - tests addition of a tag duplicate
+	 */
+	@Test
+	public void testDiff_table_addDuplicate(){
+		String origin =     "<table> <tr><td><br/></td></tr> </table>";
+		String newVersion = "<table> <tr><td><br/></td></tr> <tr><td><br/></td></tr> </table>";
+		List<ExpectedDiff> expectedDiffs = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("tr", ModificationType.ADDED),
+						new ExpectedModifiedTag("td", ModificationType.ADDED),
+						new ExpectedModifiedTag("br", ModificationType.ADDED)
+						}));
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, newVersion);
+
+		assertDiffListEqual(diffs, expectedDiffs);
+	}
+	
+	/**
+	 * Testcase TAG 2.4 - tests addition of a tag between to others
+	 */
+	@Test
+	public void testDiff_blockTagAdded_between(){
+		String origin =     "<p>Line 1</p><p>Line 2</p>";
+		String newVersion = "<p>Line 1</p><p>New paragraph</p><p>Line 2</p>";
+		List<ExpectedDiff> expectedDiffs = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("p", ModificationType.ADDED),
+						new ExpectedModifiedText("New", ModificationType.ADDED),
+						new ExpectedModifiedText(" ", ModificationType.ADDED),
+						new ExpectedModifiedText("paragraph", ModificationType.ADDED)
+						}));
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, newVersion);
+
+		assertDiffListEqual(diffs, expectedDiffs);
+	}
+	
+	/**
+	 * Testcase TAG 2.5 - tests addition of a tag between to others with partial equivalence
+	 */
+	@Test
+	public void testDiff_blockTagAdded_between_partial(){
+		String origin =     "<p>Line 1</p><p>Line 2</p>";
+		String newVersion = "<p>Line 1</p><div>Line X</div><p>Line 2</p>";
+		List<ExpectedDiff> expectedDiffsOption1 = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("div", ModificationType.ADDED),
+						new ExpectedModifiedText("Line", ModificationType.ADDED),
+						new ExpectedModifiedText(" ", ModificationType.ADDED),
+						new ExpectedModifiedText("X", ModificationType.ADDED)
+						}));
+		List<ExpectedDiff> expectedDiffsOption2 = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("div", ModificationType.CHANGED),
+						new ExpectedModifiedText("Line", ModificationType.CHANGED),
+						new ExpectedModifiedText(" ", ModificationType.CHANGED),
+						new ExpectedModifiedText("X", ModificationType.ADDED),
+						new ExpectedModifiedTag("p", ModificationType.ADDED),
+						new ExpectedModifiedText("Line", ModificationType.ADDED),
+						new ExpectedModifiedText(" ", ModificationType.ADDED)
+						}));
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, newVersion);
+		
+		assertAnyDiffListEqual(diffs, expectedDiffsOption1, expectedDiffsOption2);
+	}
 
 	/**
 	 * Testcase TAG 3.1 - tests tag deletion
@@ -360,6 +431,80 @@ public class RichTextDifferTest {
 
 		assertDiffListEqual(diffs, expectedDiffs);
 	}
+	
+	/**
+	 * Testcase TAG 3.3 - tests deletion of a tag duplicate
+	 */
+	@Test
+	public void testDiff_table_deleteDuplicate(){
+		String origin =     "<table> <tr><td><br/></td></tr> <tr><td><br/></td></tr> </table>";
+		String newVersion = "<table> <tr><td><br/></td></tr> </table>";
+		List<ExpectedDiff> expectedDiffs = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("tr", ModificationType.REMOVED),
+						new ExpectedModifiedTag("td", ModificationType.REMOVED),
+						new ExpectedModifiedTag("br", ModificationType.REMOVED)
+						}));
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, newVersion);
+
+		assertDiffListEqual(diffs, expectedDiffs);
+	}
+	
+	/**
+	 * Testcase TAG 3.4 - tests deletion of a block tag between to others
+	 */
+	@Test
+	public void testDiff_blockTagRemoved_between(){
+		String origin =     "<p>Line 1</p><p>New paragraph</p><p>Line 2</p>";
+		String newVersion = "<p>Line 1</p><p>Line 2</p>";
+		List<ExpectedDiff> expectedDiffs = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("p", ModificationType.REMOVED),
+						new ExpectedModifiedText("New", ModificationType.REMOVED),
+						new ExpectedModifiedText(" ", ModificationType.REMOVED),
+						new ExpectedModifiedText("paragraph", ModificationType.REMOVED)
+						}));
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, newVersion);
+
+		assertDiffListEqual(diffs, expectedDiffs);
+	}
+	
+	/**
+	 * Testcase TAG 3.5 - tests deletion of a tag between to others with partial equivalence
+	 */
+	@Test
+	public void testDiff_blockTagRemoved_between_partial(){
+		String origin =     "<p>Line 1</p><div>Line X</div><p>Line 2</p>";
+		String newVersion = "<p>Line 1</p><p>Line 2</p>";
+		List<ExpectedDiff> expectedDiffsOption1 = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("div", ModificationType.REMOVED),
+						new ExpectedModifiedText("Line", ModificationType.REMOVED),
+						new ExpectedModifiedText(" ", ModificationType.REMOVED),
+						new ExpectedModifiedText("X", ModificationType.REMOVED)
+						}));
+		List<ExpectedDiff> expectedDiffsOption2 = new ArrayList<ExpectedDiff>(
+				Arrays.asList(new ExpectedDiff[] {
+						new ExpectedModifiedTag("p", ModificationType.CHANGED),
+						new ExpectedModifiedText("Line", ModificationType.CHANGED),
+						new ExpectedModifiedText(" ", ModificationType.CHANGED),
+						new ExpectedModifiedText("2", ModificationType.CHANGED),
+						new ExpectedModifiedTag("p", ModificationType.REMOVED),
+						new ExpectedModifiedText("Line", ModificationType.REMOVED),
+						new ExpectedModifiedText(" ", ModificationType.REMOVED),
+						new ExpectedModifiedText("X", ModificationType.REMOVED)
+						}));
+
+		RichTextDiffer differ = new RichTextDiffer();
+		ArrayList<RichTextDiff> diffs = differ.getDiffs(origin, newVersion);
+
+		assertAnyDiffListEqual(diffs, expectedDiffsOption1, expectedDiffsOption2);
+	}
+	
 
 	/**
 	 * asserts that the given difference list is equal to the given list of expected
@@ -370,26 +515,110 @@ public class RichTextDifferTest {
 	 */
 	private static void assertDiffListEqual(List<RichTextDiff> diffs,
 			List<ExpectedDiff> expectedDiffs) {
+				
+		DiffListComparisonResult comparisonResult = compareDiffLists(diffs, expectedDiffs);
+		assertTrue("Diffs not equal:\n\n"+comparisonResult.toString(), comparisonResult.isEqual());
+	}
+	
+	/**
+	 * asserts that the given difference list is equal to at least one of the
+	 * given expected difference lists, regardless of the oder of the elements
+	 * in all lists.
+	 * 
+	 * @param diffs
+	 * @param expectedDiffsList
+	 */
+	private static void assertAnyDiffListEqual(List<RichTextDiff> diffs,
+			List<ExpectedDiff>... expectedDiffsList){
 		
-		List<ExpectedDiff> expectedDiffsCopy = new ArrayList<ExpectedDiff>(expectedDiffs);
+		boolean isEqual = false;
+		StringBuilder comparisonSummary = new StringBuilder();
+		
+		int diffListIndex = 0;
+		
+		for(List<ExpectedDiff> expectedDiffs : expectedDiffsList){
+			DiffListComparisonResult comparisonResult = compareDiffLists(diffs, expectedDiffs);
+			if(comparisonResult.isEqual()){
+				isEqual = true;
+				break;
+			}
+			comparisonSummary.append("DiffListComparisonResult #");
+			comparisonSummary.append(diffListIndex);
+			comparisonSummary.append("\n==========================\n");
+			comparisonSummary.append(comparisonResult.toString());
+			comparisonSummary.append("\n");
+			diffListIndex++;
+		}
+		
+		assertTrue("None of the given expected diff lists have been found:\n"+comparisonSummary, isEqual);
+	}
+	
+	/**
+	 * compares a given list of differences with a list of expected diffs.
+	 * 
+	 * @param diffs
+	 * @param expectedDiffs
+	 * @return the result of the comparison
+	 */
+	private static DiffListComparisonResult compareDiffLists(List<RichTextDiff> diffs, List<ExpectedDiff> expectedDiffs){
+		DiffListComparisonResult result = new DiffListComparisonResult();
+		
+		result.remainingExpectedDiffs = new ArrayList<ExpectedDiff>(expectedDiffs);
 		
 		for (RichTextDiff diff : diffs) {
 			ExpectedDiff expectedDiff = null;
-			for(ExpectedDiff exDiff : expectedDiffsCopy){
+			for(ExpectedDiff exDiff : result.remainingExpectedDiffs){
 				if(exDiff.isExpected(diff)){
 					expectedDiff = exDiff;
 				}
 			}
 			if(expectedDiff == null){
-				fail("Unexpected diff found: " + toString(diff));
+				result.unexpectedDiffs.add(diff);
 			}else{
-				expectedDiffsCopy.remove(expectedDiff);
+				result.remainingExpectedDiffs.remove(expectedDiff);
 			}
 			
 		}
-		// check if all expected diffs have been found
-		assertTrue("Not all expected diffs found - Remaining expected diffs: "
-				+ expectedDiffsCopy.toString(), expectedDiffsCopy.isEmpty());
+		
+		return result;
+	}
+	
+	/**
+	 * Represents a result of a comparison between a list of
+	 * {@link RichTextDiff}s and a list of {@link ExpectedDiff}s.
+	 *
+	 */
+	static class DiffListComparisonResult{
+		
+		List<RichTextDiff> unexpectedDiffs = new ArrayList<RichTextDiff>();
+		List<ExpectedDiff> remainingExpectedDiffs = new ArrayList<RichTextDifferTest.ExpectedDiff>();
+		
+		/**
+		 * 
+		 * @return true if both lists are equal
+		 */
+		public boolean isEqual(){
+			return unexpectedDiffs.isEmpty() && remainingExpectedDiffs.isEmpty();
+		}
+		
+		/**
+		 * a textual summary of the found unexpected differences and not found
+		 * expected differences during comparison.
+		 */
+		public String toString(){
+			StringBuilder sb = new StringBuilder();
+			sb.append("Unexpected diffs:\n");
+			for(RichTextDiff diff: unexpectedDiffs){
+				sb.append(RichTextDifferTest.toString(diff));
+				sb.append("\n");
+			}
+			sb.append("\nRemaining expected diffs:\n");
+			for(ExpectedDiff diff: remainingExpectedDiffs){
+				sb.append(diff.toString());
+				sb.append("\n");
+			}
+			return sb.toString();
+		}
 	}
 	
 	private static String toString(RichTextDiff diff){

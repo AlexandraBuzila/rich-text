@@ -212,7 +212,9 @@ public class ThreeWayRichTextDiff {
 			if (firstParent instanceof RTTagNode || firstParent instanceof RTBodyNode) {
 				for (RichTextDiff diff2 : rightDiffs) {
 					TagNode secondParent = findParent(diff2.getChild());
-					if (secondParent instanceof RTTagNode && ((RTTagNode)firstParent).isSameNode((RTTagNode)secondParent)) {
+					if (secondParent instanceof RTTagNode
+							&& firstParent instanceof RTTagNode
+							&& ((RTNode) firstParent).isSameNode(secondParent)) {
 						
 						if(areNodeTreesEqual((RTTagNode)firstParent, (RTTagNode)secondParent)){
 							continue;
@@ -523,6 +525,13 @@ public class ThreeWayRichTextDiff {
 			// TODO The code currently merges rtl. Add logic for ltr merge.
 			RichTextDiff rightDiff = threeWayDiff.getRightDiff();
 			RichTextDiff leftDiff = threeWayDiff.getLeftDiff();
+			
+			if (leftDiff != null && leftDiff.getModification().getType() == ModificationType.REMOVED){
+				Node node = leftDiff.getChild();
+				if (node != null) {
+					nodesToRemove.add(node);
+				}
+			}
 
 			if (rightDiff == null || addedNodes.contains(rightDiff.getChild())) {
 				continue;

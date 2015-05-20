@@ -585,7 +585,9 @@ public class ThreeWayRichTextDiffTest {
 					// ignore whitespaces and tabs after the tag
 					if(currentChar != ' ' && currentChar != '\t'){
 						cleanedHtml.append(currentChar);
-						isTagPredecessor = false;
+						if(currentChar != '>'){
+							isTagPredecessor = false;
+						}
 					}
 				}else{
 					cleanedHtml.append(currentChar);
