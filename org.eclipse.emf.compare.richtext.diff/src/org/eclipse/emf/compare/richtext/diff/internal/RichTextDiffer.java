@@ -88,17 +88,16 @@ public class RichTextDiffer {
 	 * post process the direct children of the given nodes - this method assumes
 	 * that each unmodified tag has a modification type of NONE assigned. The
 	 * basic idea of this algorithm is to walk through all three trees in
-	 * parallel from the leaves to the root, and find the modification type
-	 * for all tags using the modification information produced by daisydiff.
+	 * parallel from the leaves to the root, and find the modification type for
+	 * all tags using the modification information produced by daisydiff.
 	 * 
 	 * @param leftNode
 	 * @param annotatedNode
 	 * @param rightNode
-	 * @return the common modification type of all children,
-	 *         {@link ModificationType#NONE} if the they have no common
-	 *         modification type or null if there are no children at all
+	 * @return the traversal state after traversing all child nodes of the given
+	 *         annotatedNode
 	 */
-	private ModificationType postProcessNode(TagNode leftNode, TagNode annotatedNode, TagNode rightNode){
+	private ParalellLevelTraversalState postProcessNode(TagNode leftNode, TagNode annotatedNode, TagNode rightNode){
 		Iterator<Node> leftChildrenIt = leftNode.iterator();
 		Iterator<Node> annotatedChildrenIt = annotatedNode.iterator();
 		Iterator<Node> rightChildrenIt = rightNode.iterator();
@@ -157,9 +156,15 @@ public class RichTextDiffer {
 						// The nodes in all 3 versions are tags, now check the modifications of all children, and afterwards decide 
 						// which modification type applies to these nodes
 						RTTagNode rightChildRT = (RTTagNode)currentRightChild;
-						ModificationType childModificationType = postProcessNode(leftChildRT, annotatedChildRT, rightChildRT);
+						ParalellLevelTraversalState childTraversalState = postProcessNode(leftChildRT, annotatedChildRT, rightChildRT);
+						ModificationType childModificationType = childTraversalState.getCommonModificationType();
 						
 						traversalState.updateCommonModificationType(childModificationType);
+
+						if(childTraversalState.hasChildChanged()){
+							// At least one of the tags in the parent tree has been changed
+							handleParentTreeChange(leftChildRT, annotatedChildRT);
+						}
 
 						if (childModificationType == null) {
 							// Tag has no children, compare equality only
@@ -219,15 +224,6 @@ public class RichTextDiffer {
 								// Tag has been removed								
 								traversalState.markCurrentTagAndMoveOn(ModificationType.REMOVED);
 							}
-						} else if (childModificationType == ModificationType.CHANGED) {
-							// At least one of the tags in the parent tree has been changed
-							handleParentTreeChange(leftChildRT, annotatedChildRT);
-							
-							// if all children have the modification type CHANGED, the Modification type 
-							// of the tag can only be either CHANGED or NONE - we don't want to propagate 
-							// the CHANGED state through the whole tree, so we just set it to NONE
-							traversalState.updateCommonModificationType(ModificationType.NONE);
-							traversalState.skipAlreadyMarkedNode();
 						} else {
 							// The tag cannot be added or removed if not all of
 							// its children have been added, removed or changed
@@ -260,7 +256,7 @@ public class RichTextDiffer {
 			}
 		}
 		
-		return traversalState.getCommonModificationType();
+		return traversalState;
 	}
 	
 	/**
@@ -387,6 +383,7 @@ public class RichTextDiffer {
 		private Node currentRightNode;
 		
 		private ModificationType commonModificationType;
+		private boolean childChanged = false;
 		
 		/**
 		 * 
@@ -614,6 +611,9 @@ public class RichTextDiffer {
 		 *            the new {@link ModificationType}
 		 */
 		public void updateCommonModificationType(ModificationType modificationType){
+			if(modificationType == ModificationType.CHANGED){
+				childChanged = true; 
+			}
 			if(commonModificationType == null){
 				commonModificationType = modificationType;
 			}else{
@@ -621,6 +621,15 @@ public class RichTextDiffer {
 					commonModificationType = ModificationType.NONE;
 				}
 			}
+		}
+		
+		/**
+		 * 
+		 * @return true if any of the already visited children has been marked
+		 *         as {@link ModificationType#CHANGED}
+		 */
+		public boolean hasChildChanged(){
+			return childChanged;
 		}
 		
 	}
