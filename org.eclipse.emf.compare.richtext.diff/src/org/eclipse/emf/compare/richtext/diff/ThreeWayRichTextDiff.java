@@ -216,7 +216,12 @@ public class ThreeWayRichTextDiff {
 							&& firstParent instanceof RTTagNode
 							&& ((RTNode) firstParent).isSameNode(secondParent)) {
 						
-						if(areNodeTreesEqual((RTTagNode)firstParent, (RTTagNode)secondParent)){
+						if (areNodeTreesEqual((RTTagNode) firstParent,
+								(RTTagNode) secondParent)
+								|| (diff.getModification().getType() == ModificationType.ADDED && diff2
+										.getModification().getType() == ModificationType.CHANGED)
+								|| (diff2.getModification().getType() == ModificationType.ADDED && diff
+										.getModification().getType() == ModificationType.CHANGED)) {
 							continue;
 						}
 
