@@ -189,6 +189,7 @@ public class RichTextMergeInputData {
 	 * @see #getChangeSameParagraphOrigin()
 	 * @see #getChangeSameParagraphLeft()
 	 * @see #getChangeSameParagraphRight()
+	 * @see #getChangeSameParagraphResult()
 	 */
 	public String getChangeSameParagraphOrigin() throws IOException {
 		return readFile("data/paragraph/changesameparagraph/origin.html");
@@ -202,6 +203,7 @@ public class RichTextMergeInputData {
 	 * @see #getChangeSameParagraphOrigin()
 	 * @see #getChangeSameParagraphLeft()
 	 * @see #getChangeSameParagraphRight()
+	 * @see #getChangeSameParagraphResult()
 	 */
 	public String getChangeSameParagraphLeft() throws IOException {
 		return readFile("data/paragraph/changesameparagraph/left.html");
@@ -215,9 +217,22 @@ public class RichTextMergeInputData {
 	 * @see #getChangeSameParagraphOrigin()
 	 * @see #getChangeSameParagraphLeft()
 	 * @see #getChangeSameParagraphRight()
+	 * @see #getChangeSameParagraphResult()
 	 */
 	public String getChangeSameParagraphRight() throws IOException {
 		return readFile("data/paragraph/changesameparagraph/right.html");
+	}
+	
+	/**
+	 * Testcase P2.1 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getChangeSameParagraphOrigin()
+	 * @see #getChangeSameParagraphLeft()
+	 * @see #getChangeSameParagraphRight()
+	 * @see #getChangeSameParagraphResult()
+	 */
+	public String getChangeSameParagraphResult() throws IOException {
+		return readFile("data/paragraph/changesameparagraph/result.html");
 	}
 
 	/* Testcase P3.1 - additional paragraphs at different locations  */
@@ -282,6 +297,7 @@ public class RichTextMergeInputData {
 	 * @see #getInsertParagraphSameLocationOrigin()
 	 * @see #getInsertParagraphSameLocationLeft()
 	 * @see #getInsertParagraphSameLocationRight()
+	 * @see #getInsertParagraphSameLocationResult()
 	 */
 	public String getInsertParagraphSameLocationOrigin() throws IOException {
 		return readFile("data/paragraph/insertparagraphssamelocation/origin.html");
@@ -295,6 +311,7 @@ public class RichTextMergeInputData {
 	 * @see #getInsertParagraphSameLocationOrigin()
 	 * @see #getInsertParagraphSameLocationLeft()
 	 * @see #getInsertParagraphSameLocationRight()
+	 * @see #getInsertParagraphSameLocationResult()
 	 */
 	public String getInsertParagraphSameLocationLeft() throws IOException {
 		return readFile("data/paragraph/insertparagraphssamelocation/left.html");
@@ -308,9 +325,22 @@ public class RichTextMergeInputData {
 	 * @see #getInsertParagraphSameLocationOrigin()
 	 * @see #getInsertParagraphSameLocationLeft()
 	 * @see #getInsertParagraphSameLocationRight()
+	 * @see #getInsertParagraphSameLocationResult()
 	 */
 	public String getInsertParagraphSameLocationRight() throws IOException {
 		return readFile("data/paragraph/insertparagraphssamelocation/right.html");
+	}
+	
+	/**
+	 * Testcase P3.2 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getInsertParagraphSameLocationOrigin()
+	 * @see #getInsertParagraphSameLocationLeft()
+	 * @see #getInsertParagraphSameLocationRight()
+	 * @see #getInsertParagraphSameLocationResult()
+	 */
+	public String getInsertParagraphSameLocationResult() throws IOException {
+		return readFile("data/paragraph/insertparagraphssamelocation/result.html");
 	}
 
 	/* Testcase P3.3 - Insert same paragraph in both versions (Pseudoconflict)  */
@@ -376,6 +406,7 @@ public class RichTextMergeInputData {
 	 * @see #getAdditionsInDeletedParagraphOrigin()
 	 * @see #getAdditionsInDeletedParagraphLeft()
 	 * @see #getAdditionsInDeletedParagraphRight()
+	 * @see #getAdditionsInDeletedParagraphResult()
 	 */
 	public String getAdditionsInDeletedParagraphOrigin() throws IOException {
 		return readFile("data/paragraph/changedeletedparagraph/addition/origin.html");
@@ -388,7 +419,8 @@ public class RichTextMergeInputData {
 	 * 
 	 * @see #getAdditionsInDeletedParagraphOrigin()
 	 * @see #getAdditionsInDeletedParagraphLeft()
-	 * @see #getAdditionsInDeletedParagraphRight())
+	 * @see #getAdditionsInDeletedParagraphRight()
+	 * @see #getAdditionsInDeletedParagraphResult()
 	 */
 	public String getAdditionsInDeletedParagraphLeft() throws IOException {
 		return readFile("data/paragraph/changedeletedparagraph/addition/left.html");
@@ -402,9 +434,22 @@ public class RichTextMergeInputData {
 	 * @see #getAdditionsInDeletedParagraphOrigin()
 	 * @see #getAdditionsInDeletedParagraphLeft()
 	 * @see #getAdditionsInDeletedParagraphRight()
+	 * @see #getAdditionsInDeletedParagraphResult()
 	 */
 	public String getAdditionsInDeletedParagraphRight() throws IOException {
 		return readFile("data/paragraph/changedeletedparagraph/addition/right.html");
+	}
+	
+	/**
+	 * Testcase P3.4 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getAdditionsInDeletedParagraphOrigin()
+	 * @see #getAdditionsInDeletedParagraphLeft()
+	 * @see #getAdditionsInDeletedParagraphRight()
+	 * @see #getAdditionsInDeletedParagraphResult()
+	 */
+	public String getAdditionsInDeletedParagraphResult() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/addition/result.html");
 	}
 	
 	/* Testcase P3.5 - Left: paragraph deleted - Right: text deletions in deleted paragraph */
@@ -417,6 +462,7 @@ public class RichTextMergeInputData {
 	 * @see #getDeletionsInDeletedParagraphOrigin()
 	 * @see #getDeletionsInDeletedParagraphLeft()
 	 * @see #getDeletionsInDeletedParagraphRight()
+	 * @see #getDeletionsInDeletedParagraphResult()
 	 */
 	public String getDeletionsInDeletedParagraphOrigin() throws IOException {
 		return readFile("data/paragraph/changedeletedparagraph/deletion/origin.html");
@@ -430,6 +476,7 @@ public class RichTextMergeInputData {
 	 * @see #getDeletionsInDeletedParagraphOrigin()
 	 * @see #getDeletionsInDeletedParagraphLeft()
 	 * @see #getDeletionsInDeletedParagraphRight()
+	 * @see #getDeletionsInDeletedParagraphResult()
 	 */
 	public String getDeletionsInDeletedParagraphLeft() throws IOException {
 		return readFile("data/paragraph/changedeletedparagraph/deletion/left.html");
@@ -443,9 +490,22 @@ public class RichTextMergeInputData {
 	 * @see #getDeletionsInDeletedParagraphOrigin()
 	 * @see #getDeletionsInDeletedParagraphLeft()
 	 * @see #getDeletionsInDeletedParagraphRight()
+	 * @see #getDeletionsInDeletedParagraphResult()
 	 */
 	public String getDeletionsInDeletedParagraphRight() throws IOException {
 		return readFile("data/paragraph/changedeletedparagraph/deletion/right.html");
+	}
+	
+	/**
+	 * Testcase P3.5 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getDeletionsInDeletedParagraphOrigin()
+	 * @see #getDeletionsInDeletedParagraphLeft()
+	 * @see #getDeletionsInDeletedParagraphRight()
+	 * @see #getDeletionsInDeletedParagraphResult()
+	 */
+	public String getDeletionsInDeletedParagraphResult() throws IOException {
+		return readFile("data/paragraph/changedeletedparagraph/deletion/result.html");
 	}
 	
 	/* Testcase P4.1 - modification in moved paragraph  */
@@ -456,6 +516,7 @@ public class RichTextMergeInputData {
 	 * @see #getChangeMovedParagraphOrigin()
 	 * @see #getChangeMovedParagraphLeft()
 	 * @see #getChangeMovedParagraphRight()
+	 * @see #getChangeMovedParagraphResult()
 	 */
 	public String getChangeMovedParagraphOrigin() throws IOException {
 		return readFile("data/paragraph/changemovedparagraph/origin.html");
@@ -469,6 +530,7 @@ public class RichTextMergeInputData {
 	 * @see #getChangeMovedParagraphOrigin()
 	 * @see #getChangeMovedParagraphLeft()
 	 * @see #getChangeMovedParagraphRight()
+	 * @see #getChangeMovedParagraphResult()
 	 */
 	public String getChangeMovedParagraphLeft() throws IOException {
 		return readFile("data/paragraph/changemovedparagraph/left.html");
@@ -485,9 +547,22 @@ public class RichTextMergeInputData {
 	 * @see #getChangeMovedParagraphOrigin()
 	 * @see #getChangeMovedParagraphLeft()
 	 * @see #getChangeMovedParagraphRight()
+	 * @see #getChangeMovedParagraphResult()
 	 */
 	public String getChangeMovedParagraphRight() throws IOException {
 		return readFile("data/paragraph/changemovedparagraph/right.html");
+	}
+	
+	/**
+	 * Testcase P4.1 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getChangeMovedParagraphOrigin()
+	 * @see #getChangeMovedParagraphLeft()
+	 * @see #getChangeMovedParagraphRight()
+	 * @see #getChangeMovedParagraphResult()
+	 */
+	public String getChangeMovedParagraphResult() throws IOException {
+		return readFile("data/paragraph/changemovedparagraph/result.html");
 	}
 	
 	/* 
@@ -720,6 +795,7 @@ public class RichTextMergeInputData {
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellResult()
 	 */
 	public String getInsertParagraphAtSameLocationInSameTableCellOrigin() throws IOException {
 		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/origin.html");
@@ -733,6 +809,7 @@ public class RichTextMergeInputData {
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellResult()
 	 */
 	public String getInsertParagraphAtSameLocationInSameTableCellLeft() throws IOException {
 		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/left.html");
@@ -746,9 +823,22 @@ public class RichTextMergeInputData {
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellResult()
 	 */
 	public String getInsertParagraphAtSameLocationInSameTableCellRight() throws IOException {
 		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/right.html");
+	}
+	
+	/**
+	 * Testcase T2.2 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellRight()
+	 * @see #getInsertParagraphAtSameLocationInSameTableCellResult()
+	 */
+	public String getInsertParagraphAtSameLocationInSameTableCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/insertparagraph/samelocation/result.html");
 	}
 
 	/* Testcase T2.3 - Insertion of new paragraphs and same content (Pseudoconflict) at the same location within a table cell */
@@ -813,6 +903,7 @@ public class RichTextMergeInputData {
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellResult()
 	 */
 	public String getAdditionsInDeletedParagraphInSameTableCellOrigin() throws IOException {
 		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/origin.html");
@@ -826,6 +917,7 @@ public class RichTextMergeInputData {
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellResult()
 	 */
 	public String getAdditionsInDeletedParagraphInSameTableCellLeft() throws IOException {
 		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/left.html");
@@ -839,9 +931,22 @@ public class RichTextMergeInputData {
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellResult()
 	 */
 	public String getAdditionsInDeletedParagraphInSameTableCellRight() throws IOException {
 		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/right.html");
+	}
+
+	/**
+	 * Testcase T2.4 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getAdditionsInDeletedParagraphInSameTableCellResult()
+	 */
+	public String getAdditionsInDeletedParagraphInSameTableCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/addition/result.html");
 	}
 	
 
@@ -853,6 +958,7 @@ public class RichTextMergeInputData {
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellResult()
 	 */
 	public String getDeletionsInDeletedParagraphInSameTableCellOrigin() throws IOException {
 		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/origin.html");
@@ -866,6 +972,7 @@ public class RichTextMergeInputData {
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellResult()
 	 */
 	public String getDeletionsInDeletedParagraphInSameTableCellLeft() throws IOException {
 		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/left.html");
@@ -879,9 +986,22 @@ public class RichTextMergeInputData {
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellResult()
 	 */
 	public String getDeletionsInDeletedParagraphInSameTableCellRight() throws IOException {
 		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/right.html");
+	}
+	
+	/**
+	 * Testcase T2.5 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellRight()
+	 * @see #getDeletionsInDeletedParagraphInSameTableCellResult()
+	 */
+	public String getDeletionsInDeletedParagraphInSameTableCellResult() throws IOException {
+		return readFile("data/table/changeinsamecell/changedeletedparagraph/deletion/result.html");
 	}
 	
 	/* Testcase T3.1 - Insert column (left), remove column (right) */
@@ -1003,6 +1123,7 @@ public class RichTextMergeInputData {
 	 * @see #getAddColumnRemoveTableRowOrigin()
 	 * @see #getAddColumnRemoveTableRowLeft()
 	 * @see #getAddColumnRemoveTableRowRight()
+	 * @see #getAddColumnRemoveTableRowResult()
 	 */
 	public String getAddColumnRemoveTableRowOrigin() throws IOException {
 		return readFile("data/table/addcolumnremoverow/origin.html");
@@ -1016,6 +1137,7 @@ public class RichTextMergeInputData {
 	 * @see #getAddColumnRemoveTableRowOrigin()
 	 * @see #getAddColumnRemoveTableRowLeft()
 	 * @see #getAddColumnRemoveTableRowRight()
+	 * @see #getAddColumnRemoveTableRowResult()
 	 */
 	public String getAddColumnRemoveTableRowLeft() throws IOException {
 		return readFile("data/table/addcolumnremoverow/left.html");
@@ -1024,14 +1146,27 @@ public class RichTextMergeInputData {
 	/**
 	 * Testcase T3.3 - Right version, changes:
 	 * 
-	 * <ul><li>Removes last row</li><ul>
+	 * <ul><li>Removes last row</li><ul> 
 	 * 
 	 * @see #getAddColumnRemoveTableRowOrigin()
 	 * @see #getAddColumnRemoveTableRowLeft()
 	 * @see #getAddColumnRemoveTableRowRight()
+	 * @see #getAddColumnRemoveTableRowResult()
 	 */
 	public String getAddColumnRemoveTableRowRight() throws IOException {
 		return readFile("data/table/addcolumnremoverow/right.html");
+	}
+	
+	/**
+	 * Testcase T3.3 - Merged version, conflict resolved by using right version of conflicting elements
+	 * 
+	 * @see #getAddColumnRemoveTableRowOrigin()
+	 * @see #getAddColumnRemoveTableRowLeft()
+	 * @see #getAddColumnRemoveTableRowRight()
+	 * @see #getAddColumnRemoveTableRowResult()
+	 */
+	public String getAddColumnRemoveTableRowResult() throws IOException {
+		return readFile("data/table/addcolumnremoverow/result.html");
 	}
 
 	

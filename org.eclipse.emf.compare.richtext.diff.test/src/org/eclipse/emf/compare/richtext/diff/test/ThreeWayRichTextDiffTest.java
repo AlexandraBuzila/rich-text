@@ -127,6 +127,21 @@ public class ThreeWayRichTextDiffTest {
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
 	}
+	
+	/**
+	 * Testcase P2.1 - tests merge result
+	 */
+	@Test
+	public void testMerge_changeSameParagraph() throws IOException {
+		String origin = inputData.getChangeSameParagraphOrigin();
+		String left = inputData.getChangeSameParagraphLeft();
+		String right = inputData.getChangeSameParagraphRight();
+		String result = inputData.getChangeSameParagraphResult();
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
+	}
 
 	/* Testcase P3.1 - additional paragraphs at different locations  */
 	
@@ -171,6 +186,21 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase P3.2 - tests merge result
+	 */
+	@Test
+	public void testMerge_insertParagraphSameLocation() throws IOException {
+		String origin = inputData.getInsertParagraphSameLocationOrigin();
+		String left = inputData.getInsertParagraphSameLocationLeft();
+		String right = inputData.getInsertParagraphSameLocationRight();
+		String result = inputData.getInsertParagraphSameLocationResult();
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase P3.3 - Insert same paragraph in both versions (Pseudoconflict)  */
@@ -218,6 +248,21 @@ public class ThreeWayRichTextDiffTest {
 		Assert.assertTrue(diff.isConflicting());
 	}
 	
+	/**
+	 * Testcase P3.4 - tests merge result
+	 */
+	@Test
+	public void testMerge_changeInDeletedParagraph_additions() throws IOException {
+		String origin = inputData.getAdditionsInDeletedParagraphOrigin();
+		String left = inputData.getAdditionsInDeletedParagraphLeft();
+		String right = inputData.getAdditionsInDeletedParagraphRight();
+		String result = inputData.getAdditionsInDeletedParagraphResult();
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
+	}
+	
 	/* Testcase P3.5 - Left: paragraph deleted - Right: text deletions in deleted paragraph */
 	
 	/**
@@ -231,6 +276,21 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase P3.5 - tests merge result
+	 */
+	@Test
+	public void testMerge_changeInDeletedParagraph_deletions() throws IOException {
+		String origin = inputData.getDeletionsInDeletedParagraphOrigin();
+		String left = inputData.getDeletionsInDeletedParagraphLeft();
+		String right = inputData.getDeletionsInDeletedParagraphRight();
+		String result = inputData.getDeletionsInDeletedParagraphResult();
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 
@@ -247,6 +307,21 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase P4.1 - tests merge result
+	 */
+	@Test
+	public void testMerge_changeMovedParagraph() throws IOException {
+		String origin = inputData.getChangeMovedParagraphOrigin();
+		String left = inputData.getChangeMovedParagraphLeft();
+		String right = inputData.getChangeMovedParagraphRight();
+		String result = inputData.getChangeMovedParagraphResult();
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 
 	/* 
@@ -392,6 +467,22 @@ public class ThreeWayRichTextDiffTest {
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
 	}
+	
+	/**
+	 * Testcase T2.2 - tests merge result
+	 */
+	@Test
+	public void testMerge_insertParagraphAtSameLocation_sameTableCell() throws IOException {
+		String origin = inputData.getInsertParagraphAtSameLocationInSameTableCellOrigin();
+		String left = inputData.getInsertParagraphAtSameLocationInSameTableCellLeft();
+		String right = inputData.getInsertParagraphAtSameLocationInSameTableCellRight();
+		String result = inputData.getInsertParagraphAtSameLocationInSameTableCellResult();
+		
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
+	}
 
 	/* Testcase T2.3 - Insertion of new paragraphs and same content (Pseudoconflict) at the same location within a table cell */
 	
@@ -438,6 +529,23 @@ public class ThreeWayRichTextDiffTest {
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
 	}
+	
+
+	/**
+	 * Testcase T2.4 - tests merge result
+	 */
+	@Test
+	public void testMerge_additionInDeletedParagraph_sameTableCell() throws IOException {
+		String origin = inputData.getAdditionsInDeletedParagraphInSameTableCellOrigin();
+		String left = inputData.getAdditionsInDeletedParagraphInSameTableCellLeft();
+		String right = inputData.getAdditionsInDeletedParagraphInSameTableCellRight();
+		String result = inputData.getAdditionsInDeletedParagraphInSameTableCellResult();
+		
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
+	}
 
 	/* Testcase T2.5 - Text addition in deleted paragraph */
 	
@@ -452,6 +560,22 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T2.5 - tests merge result
+	 */
+	@Test
+	public void testMerge_deletionInDeletedParagraph_sameTableCell() throws IOException {
+		String origin = inputData.getDeletionsInDeletedParagraphInSameTableCellOrigin();
+		String left = inputData.getDeletionsInDeletedParagraphInSameTableCellLeft();
+		String right = inputData.getDeletionsInDeletedParagraphInSameTableCellRight();
+		String result = inputData.getDeletionsInDeletedParagraphInSameTableCellResult();
+		
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/* Testcase T3.1 - Insert column (left), remove column (right) */
@@ -529,6 +653,22 @@ public class ThreeWayRichTextDiffTest {
 
 		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
 		Assert.assertTrue(diff.isConflicting());
+	}
+	
+	/**
+	 * Testcase T3.3 - tests merge result
+	 */
+	@Test
+	public void testMerge_addColumnRemoveRow() throws IOException {
+		String origin = inputData.getAddColumnRemoveTableRowOrigin();
+		String left = inputData.getAddColumnRemoveTableRowLeft();
+		String right = inputData.getAddColumnRemoveTableRowRight();
+		String result = inputData.getAddColumnRemoveTableRowResult();
+		
+		result = normalizeHtml(result);
+		ThreeWayRichTextDiff diff = new ThreeWayRichTextDiff(origin, left, right);
+		String merged = diff.getMerged();
+		Assert.assertEquals(result, normalizeHtml(merged));
 	}
 	
 	/**
