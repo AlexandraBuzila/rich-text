@@ -66,6 +66,11 @@ public class ThreeWayRichTextDiff {
 
 	/** The computed three-way line differences. */
 	private final List<RichTextThreeWayDiff> threeWayDifferences;
+	
+	/**
+	 * the list of diffs involved in structural conflicts
+	 */
+	private final List<RichTextDiff> conflictingStructuralDiffs;
 
 	/** The conflict state. */
 	private ConflictState conflictState = ConflictState.UNKNOWN;
@@ -96,11 +101,18 @@ public class ThreeWayRichTextDiff {
 	public ThreeWayRichTextDiff(String origin, String left, String right) {
 		this.isLeftOrRightUnset = origin != null && (left == null || right == null);
 		this.threeWayDifferences = computeThreeWayDiffs(origin, left, right);
+		this.conflictingStructuralDiffs = new ArrayList<RichTextDiff>();
 	}
 
 	/**
 	 */
 	public String getMerged() {
+		
+		// make sure all conflicting elements are known before merging
+		if(conflictState == ConflictState.UNKNOWN){
+			conflictState = computeConflictState();
+		}
+		
 		if (merged == null) {
 			merged = computeMerged();
 		}
@@ -193,50 +205,66 @@ public class ThreeWayRichTextDiff {
 	 * @return The computed conflict state.
 	 */
 	private ConflictState computeConflictState() {
+		
+		// We need to store the conflicting elements to merge it later, so we
+		// cannot stop at the first conflict we find.
+		ConflictState newConflictState = ConflictState.NOT_CONFLICTING;
+		
 		for (RichTextThreeWayDiff threeWayDiff : threeWayDifferences) {
 			// conflict comes from changes to the same text node
 			if (threeWayDiff.isConflicting()) {
-				return ConflictState.CONFLICTING;
+				newConflictState = ConflictState.CONFLICTING;
 			}
 		}
-		return hasConflictingStructuralChanges();
+		ConflictState structuralConflictState = hasConflictingStructuralChanges();
+		if(newConflictState == ConflictState.NOT_CONFLICTING){
+			return structuralConflictState;
+		}
+		return newConflictState;
 	}
 
 	/***/
 	// TODO update once "requires/requiredBy" and "equivalence" relationships
 	// for diffs are implemented
 	private ConflictState hasConflictingStructuralChanges() {
-		for (RichTextDiff diff : leftDiffs) {
-			Node node = diff.getChild();
-			TagNode firstParent = findParent(diff.getChild());
-			if (firstParent instanceof RTTagNode || firstParent instanceof RTBodyNode) {
-				for (RichTextDiff diff2 : rightDiffs) {
-					TagNode secondParent = findParent(diff2.getChild());
-					if (secondParent instanceof RTTagNode
-							&& firstParent instanceof RTTagNode
-							&& ((RTNode) firstParent).isSameNode(secondParent)) {
+		
+		// We need to store the conflicting elements to merge it later, so we
+		// cannot stop at the first conflict we find.
+		ConflictState newConflictState = ConflictState.NOT_CONFLICTING;
+		
+		for (RichTextDiff leftDiff : leftDiffs) {
+			Node node = leftDiff.getChild();
+			TagNode leftParent = findParent(leftDiff.getChild());
+			if (leftParent instanceof RTTagNode || leftParent instanceof RTBodyNode) {
+				for (RichTextDiff rightDiff : rightDiffs) {
+					TagNode rightParent = findParent(rightDiff.getChild());
+					if (rightParent instanceof RTTagNode
+							&& leftParent instanceof RTTagNode
+							&& ((RTNode) leftParent).isSameNode(rightParent)) {
 						
-						if (areNodeTreesEqual((RTTagNode) firstParent,
-								(RTTagNode) secondParent)
-								|| (diff.getModification().getType() == ModificationType.ADDED && diff2
+						if (areNodeTreesEqual((RTTagNode) leftParent,
+								(RTTagNode) rightParent)
+								|| (leftDiff.getModification().getType() == ModificationType.ADDED && rightDiff
 										.getModification().getType() == ModificationType.CHANGED)
-								|| (diff2.getModification().getType() == ModificationType.ADDED && diff
+								|| (rightDiff.getModification().getType() == ModificationType.ADDED && leftDiff
 										.getModification().getType() == ModificationType.CHANGED)) {
 							continue;
 						}
 
-						return ConflictState.CONFLICTING;
-					} else if (node == firstParent
-							&& secondParent == diff2.getChild()
-							&& diff.getModification().getType() == ModificationType.ADDED
-							&& diff2.getModification().getType() == ModificationType.ADDED) {
+						newConflictState = ConflictState.CONFLICTING;
+						addConflictingStructuralDiffPair(leftDiff, rightDiff);
+						
+					} else if (node == leftParent
+							&& rightParent == rightDiff.getChild()
+							&& leftDiff.getModification().getType() == ModificationType.ADDED
+							&& rightDiff.getModification().getType() == ModificationType.ADDED) {
 						// although the tags are not equal, they might be added
 						// on the same location within their parent, which is
 						// also a conflict
 						
 						// first retrieve the parents
 						TagNode realLeftParent = node.getParent();
-						TagNode realRightParent = diff2.getChild().getParent();
+						TagNode realRightParent = rightDiff.getChild().getParent();
 						if (realLeftParent instanceof RTTagNode
 								&& realRightParent instanceof RTTagNode) {
 							RTTagNode leftRTParent = (RTTagNode) realLeftParent;
@@ -244,17 +272,19 @@ public class ThreeWayRichTextDiff {
 							// if the parents are not the same there is no need
 							// to check the insertion index
 							if (leftRTParent.isSameNode(rightRTParent)
-									&& countPreceedingSiblingsWithoutInsertions(node) == countPreceedingSiblingsWithoutInsertions(diff2
+									&& countPreceedingSiblingsWithoutInsertions(node) == countPreceedingSiblingsWithoutInsertions(rightDiff
 											.getChild())) {
-								return ConflictState.CONFLICTING;
+								newConflictState = ConflictState.CONFLICTING;
+								addConflictingStructuralDiffPair(leftDiff, rightDiff);
 								
 							}
 						}else if (realLeftParent instanceof RTBodyNode
 								&& realRightParent instanceof RTBodyNode
-								&& countPreceedingSiblingsWithoutInsertions(node) == countPreceedingSiblingsWithoutInsertions(diff2
+								&& countPreceedingSiblingsWithoutInsertions(node) == countPreceedingSiblingsWithoutInsertions(rightDiff
 										.getChild())) {
 							// body nodes are always equal, so we do not need to check the equality
-							return ConflictState.CONFLICTING;
+							newConflictState = ConflictState.CONFLICTING;
+							addConflictingStructuralDiffPair(leftDiff, rightDiff);
 						}
 					}
 				}
@@ -281,7 +311,8 @@ public class ThreeWayRichTextDiff {
 							
 							TagNode rightTable = findParentTag(rightNode, "table");
 							if (rightTable instanceof RTTagNode && ((RTTagNode)leftTable).isSameNode((RTTagNode)rightTable)) {
-								return ConflictState.CONFLICTING;
+								newConflictState = ConflictState.CONFLICTING;
+								addConflictingStructuralDiffPair(leftDiff, rightDiff);
 							}
 						}
 						
@@ -306,7 +337,8 @@ public class ThreeWayRichTextDiff {
 									&& ((RTTagNode) leftTable)
 											.isSameNode((RTTagNode) rightTable)
 									&& hasTableColumnChanged(rightTable)) {
-								return ConflictState.CONFLICTING;
+								newConflictState = ConflictState.CONFLICTING;
+								addConflictingStructuralDiffPair(leftDiff, rightDiff);
 							}
 							
 						}
@@ -317,7 +349,63 @@ public class ThreeWayRichTextDiff {
 				// FIXME how should we handle malformed HTML (table rows or columns without parent table) in this case?
 			}
 		}
-		return ConflictState.NOT_CONFLICTING;
+		return newConflictState;
+	}
+	
+	/**
+	 * adds a pair of conflicting {@link RichTextDiff}s and all
+	 * {@link RichTextDiff}s containing the child nodes of those two
+	 * {@link RichTextDiff}s to the collection of structural conflicts
+	 * 
+	 * @param leftDiff
+	 * @param rightDiff
+	 */
+	private void addConflictingStructuralDiffPair(RichTextDiff leftDiff, RichTextDiff rightDiff){
+
+		addConflictingStructuralDiff(leftDiff, leftDiffs);
+		addConflictingStructuralDiff(rightDiff, rightDiffs);
+	}
+	
+	/**
+	 * adds the given {@link RichTextDiff} and all {@link RichTextDiff}s
+	 * containing the child nodes of that {@link RichTextDiff} to the collection
+	 * of structural conflicts
+	 * 
+	 * @param diff
+	 * @param allDiffs
+	 */
+	private void addConflictingStructuralDiff(RichTextDiff diff, List<RichTextDiff> allDiffs){
+		if(!conflictingStructuralDiffs.contains(diff)){
+			conflictingStructuralDiffs.add(diff);
+		}
+		Node node = diff.getChild();
+		if(node instanceof TagNode){
+			// also add child nodes to the conflicting elements
+			for(Node child : (TagNode)node){
+				RichTextDiff childDiff = findDiffForNode(child, allDiffs);
+				if(childDiff != null){
+					addConflictingStructuralDiff(childDiff, allDiffs);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * finds the {@link RichTextDiff} which contains the given node in the given
+	 * list of {@link RichTextDiff}s.
+	 * 
+	 * @param node
+	 * @param allDiffs
+	 * @return the {@link RichTextDiff} containing the given node or null if no
+	 *         {@link RichTextDiff} in the list contains the given node
+	 */
+	private RichTextDiff findDiffForNode(Node node, List<RichTextDiff> allDiffs){
+		for(RichTextDiff diff : allDiffs){
+			if(diff.getChild() == node){
+				return diff;
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -505,7 +593,9 @@ public class ThreeWayRichTextDiff {
 	}
 
 	/**
-	 * Computes the merge result based on the {@link #threeWayDifferences}.
+	 * Computes the merge result based on the {@link #threeWayDifferences}. If
+	 * conflicting elements exist, the left version of these elements will be in
+	 * the merged version.
 	 * 
 	 * @return The result of merging all {@link #threeWayDifferences}.
 	 */
@@ -524,21 +614,28 @@ public class ThreeWayRichTextDiff {
 		 */
 		List<Node> addedNodes = new ArrayList<Node>();
 		for (RichTextThreeWayDiff threeWayDiff : threeWayDifferences) {
-			
-			// TODO - handle conflicts
 
 			// TODO The code currently merges rtl. Add logic for ltr merge.
 			RichTextDiff rightDiff = threeWayDiff.getRightDiff();
 			RichTextDiff leftDiff = threeWayDiff.getLeftDiff();
 			
-			if (leftDiff != null && leftDiff.getModification().getType() == ModificationType.REMOVED){
-				Node node = leftDiff.getChild();
-				if (node != null) {
-					nodesToRemove.add(node);
+			if (leftDiff != null){
+				// always keep the left version, even if there are conflicts -
+				// as we merge right to left, we just have to handle removed
+				// nodes, as all other nodes are present already
+				if( leftDiff.getModification().getType() == ModificationType.REMOVED){
+					// deleted nodes are present in the DOM tree, so we have to remove it
+					Node node = leftDiff.getChild();
+					if (node != null) {
+						nodesToRemove.add(node);
+					}
 				}
+				continue;
 			}
 
-			if (rightDiff == null || addedNodes.contains(rightDiff.getChild())) {
+			if (rightDiff == null || addedNodes.contains(rightDiff.getChild())
+					|| threeWayDiff.isConflicting()
+					|| conflictingStructuralDiffs.contains(rightDiff)) {
 				continue;
 			}
 			TagNode root = leftComparator.getBodyNode();
@@ -546,10 +643,6 @@ public class ThreeWayRichTextDiff {
 			TagNode leftParent = (TagNode) findNode(root, rightParent);
 			if (!(leftParent instanceof RTNode)) {
 				// XXX - return?
-				continue;
-			}
-			
-			if(leftDiff != null && leftDiff.getModification().getType() == ModificationType.ADDED){
 				continue;
 			}
 

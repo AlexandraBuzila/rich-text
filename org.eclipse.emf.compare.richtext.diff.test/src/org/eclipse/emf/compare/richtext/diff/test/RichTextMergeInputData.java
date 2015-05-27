@@ -224,7 +224,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase P2.1 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase P2.1 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getChangeSameParagraphOrigin()
 	 * @see #getChangeSameParagraphLeft()
@@ -332,7 +332,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase P3.2 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase P3.2 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getInsertParagraphSameLocationOrigin()
 	 * @see #getInsertParagraphSameLocationLeft()
@@ -441,7 +441,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase P3.4 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase P3.4 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getAdditionsInDeletedParagraphOrigin()
 	 * @see #getAdditionsInDeletedParagraphLeft()
@@ -497,7 +497,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase P3.5 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase P3.5 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getDeletionsInDeletedParagraphOrigin()
 	 * @see #getDeletionsInDeletedParagraphLeft()
@@ -554,7 +554,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase P4.1 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase P4.1 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getChangeMovedParagraphOrigin()
 	 * @see #getChangeMovedParagraphLeft()
@@ -830,7 +830,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase T2.2 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase T2.2 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellOrigin()
 	 * @see #getInsertParagraphAtSameLocationInSameTableCellLeft()
@@ -938,7 +938,7 @@ public class RichTextMergeInputData {
 	}
 
 	/**
-	 * Testcase T2.4 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase T2.4 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getAdditionsInDeletedParagraphInSameTableCellLeft()
@@ -993,7 +993,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase T2.5 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase T2.5 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellOrigin()
 	 * @see #getDeletionsInDeletedParagraphInSameTableCellLeft()
@@ -1158,7 +1158,7 @@ public class RichTextMergeInputData {
 	}
 	
 	/**
-	 * Testcase T3.3 - Merged version, conflict resolved by using right version of conflicting elements
+	 * Testcase T3.3 - Merged version, conflict resolved by using the left version of conflicting elements
 	 * 
 	 * @see #getAddColumnRemoveTableRowOrigin()
 	 * @see #getAddColumnRemoveTableRowLeft()
